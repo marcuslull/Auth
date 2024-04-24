@@ -4,5 +4,5 @@ COPY pom.xml ./
 COPY src ./src
 RUN mvn clean package -Dmaven.test.skip=true
 RUN cp ./target/*.jar app.jar
-EXPOSE 8443
+EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
