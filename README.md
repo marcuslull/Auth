@@ -1,3 +1,6 @@
+[![CodeQL](https://github.com/marcuslull/Auth/actions/workflows/github-code-scanning/codeql/badge.svg?branch=dev)](https://github.com/marcuslull/Auth/actions/workflows/github-code-scanning/codeql) 
+[![Java CI with Maven](https://github.com/marcuslull/Auth/actions/workflows/maven.yml/badge.svg?branch=dev)](https://github.com/marcuslull/Auth/actions/workflows/maven.yml)
+
 # Auth Service
 
 ## An Authentication and Authorization Service for my personal projects
