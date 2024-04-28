@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 @Slf4j
 @Configuration
@@ -23,12 +26,22 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
+        // the Exception thrown is handled by Spring Security and is used for auth events such as redirection
+
         log.info("START: SecurityConfiguration.baseFilter()");
+
         // base security config for Spring Security
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated()) // all requests to the service must be authenticated
-                .formLogin(Customizer.withDefaults()); // using the default spring security login page
+                // redirections for auth exceptions
+                .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
+                        new LoginUrlAuthenticationEntryPoint("/login"),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
+
+                // all requests to the service must be authenticated
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+
+                // using the default spring security login page. Custom handlers are for logging hooks
+                .formLogin(Customizer.withDefaults());
         return http.build();
     }
 
