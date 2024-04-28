@@ -20,3 +20,4 @@ target/
 *.ipr
 /src/main/resources/keystore/
 /logs/
+/LOGDIR_IS_UNDEFINED/
