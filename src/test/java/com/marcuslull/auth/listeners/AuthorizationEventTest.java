@@ -43,7 +43,7 @@ class AuthorizationEventTest {
         // create a context and get the logger from the applicable module
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         ch.qos.logback.classic.Logger eventLogger =
-                loggerContext.getLogger("com.marcuslull.auth.listeners.AuthorizationEvent");
+                loggerContext.getLogger("com.marcuslull.auth.configurations.listeners.AuthorizationEvent");
 
         // add the captured log to the list
         listAppender = new ListAppender<>();

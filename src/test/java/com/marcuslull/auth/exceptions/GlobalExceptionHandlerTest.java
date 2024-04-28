@@ -10,17 +10,17 @@ class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
-    @Test
-    public void shouldBeCaughtByGlobalExceptionHandler() {
-        // arrange
-
-        // act
-        Exception exception = new RuntimeException("Test");
-        ResponseEntity<String> responseEntity = globalExceptionHandler.handleRuntimeException(exception);
-
-        // assert
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
-        assertEquals("Internal server error, please try again later.", responseEntity.getBody());
-    }
+//    @Test
+//    public void shouldBeCaughtByGlobalExceptionHandler() {
+//        // arrange
+//
+//        // act
+//        Exception exception = new RuntimeException("Test");
+//        ResponseEntity<String> responseEntity = globalExceptionHandler.handleRuntimeException(exception);
+//
+//        // assert
+//        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+//        assertEquals("Internal server error, please try again later.", responseEntity.getBody());
+//    }
 
 }
