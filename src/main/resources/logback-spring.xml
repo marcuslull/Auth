@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <property name="LOGDIR" value="${LOGDIR}" />
+
+    <!--File logging-->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGDIR}/auth.log</file>
+        <encoder>
+            <pattern>%d{ISO8601} %-5level [%thread]    %C - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGDIR}/auth-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>2MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <logger name="com.marcuslull.auth" level="WARN" additivity="true">
+        <appender-ref ref="file"/>
+    </logger>
+
+    <!--Console logging-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{ISO8601} %highlight(%-5level) [%blue(%t)] %yellow(%C): %msg%n%throwable</pattern>
+        </encoder>
+    </appender>
+    <logger name="com.marcuslull.auth" level="TRACE" additivity="true">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="org.springframework.security" level="TRACE" additivity="true">
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="org.hibernate.SQL" level="TRACE" additivity="true">
+        <appender-ref ref="console"/>
+    </logger>
+
+</configuration>

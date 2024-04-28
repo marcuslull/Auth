@@ -19,3 +19,5 @@ target/
 *.iml
 *.ipr
 /src/main/resources/keystore/
+/logs/
+/LOGDIR_IS_UNDEFINED/

@@ -1,5 +1,6 @@
 package com.marcuslull.auth.configurations;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -21,6 +23,7 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
+        log.info("START: SecurityConfiguration.baseFilter()");
         // base security config for Spring Security
         http
                 .authorizeHttpRequests(authorize -> authorize
@@ -31,6 +34,7 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        log.info("START: SecurityConfiguration.authenticationManager()");
         // Creating a required AuthenticationManger, ProviderManager, and AuthenticationProvider for Spring Security
         // UserDetailsService will be our CustomUserDetailsService. PasswordEncoder will be the Argon2 Bean declared below
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // using the standard username/password authentication
@@ -44,6 +48,7 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        log.info("START: SecurityConfiguration.passwordEncoder");
         // Argon2 encoder is a current best practice for password hashing
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
         return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20);
