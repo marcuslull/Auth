@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.marcuslull.auth.configurations.listeners.AuthorizationEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 
@@ -44,7 +43,7 @@ class AuthorizationEventTest {
         // create a context and get the logger from the applicable module
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         ch.qos.logback.classic.Logger eventLogger =
-                loggerContext.getLogger("com.marcuslull.auth.listeners.AuthorizationEvent");
+                loggerContext.getLogger("com.marcuslull.auth.configurations.listeners.AuthorizationEvent");
 
         // add the captured log to the list
         listAppender = new ListAppender<>();
