@@ -37,10 +37,11 @@ public class SecurityConfiguration {
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
 
-                // all requests to the service must be authenticated
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+                .authorizeHttpRequests(authorize -> authorize
+                        // must be ordered by specificity
+                        .requestMatchers("/favicon.ico", "/register", "/").permitAll()
+                        .anyRequest().authenticated())
 
-                // using the default spring security login page. Custom handlers are for logging hooks
                 .formLogin(Customizer.withDefaults());
         return http.build();
     }
