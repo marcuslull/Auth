@@ -30,6 +30,13 @@ public class RegisterService {
         // Will contain a "message" and an HTML "page"
         Map<String, String> returnMap = new HashMap<>();
 
+        if (registration.email().isBlank() || registration.password().isBlank() || registration.confirmPassword().isBlank()) {
+            log.warn("REGISTRATION: MainController.postRegister(email: {}, password: [PROTECTED]) - Required field is blank", registration.email());
+            returnMap.put("message", "Required field is blank!");
+            returnMap.put("page", "register");
+            return returnMap;
+        }
+
         if (!passwordsMatch(registration)) {
             log.warn("REGISTRATION: MainController.postRegister(email: {}, password: [PROTECTED]) - Passwords must match", registration.email());
             returnMap.put("message", "Passwords must match!");

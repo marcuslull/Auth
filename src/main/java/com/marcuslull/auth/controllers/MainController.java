@@ -19,6 +19,7 @@ public class MainController {
 
     public MainController(RegisterService registerService) {
         this.registerService = registerService;
+        log.info("START: MainController");
     }
 
     @GetMapping("/")
@@ -37,6 +38,9 @@ public class MainController {
     public String postRegister(Registration registration, Model model, HttpServletRequest request) {
         log.info("REQUEST: MainController.postRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         Map<String, String> returnedMap = registerService.registrationProcess(registration);
+        if (!returnedMap.containsKey("message") || !returnedMap.containsKey("page")) {
+            throw new RuntimeException("Register service returned malformed instructions");
+        }
         model.addAttribute("message", returnedMap.get("message"));
         return returnedMap.get("page");
     }
