@@ -2,11 +2,14 @@ package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.services.RegisterService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -19,35 +22,22 @@ public class MainController {
     }
 
     @GetMapping("/")
-    public String getIndex() {
+    public String getIndex(HttpServletRequest request) {
+        log.info("REQUEST: MainController.getIndex() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         return "index";
     }
 
     @GetMapping("/register")
-    public String getRegister() {
+    public String getRegister(HttpServletRequest request) {
+        log.info("REQUEST: MainController.getRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         return "register";
     }
 
     @PostMapping("/register")
-    public String postRegister(Registration registration, Model model) {
-
-        if (!registerService.passwordsMatch(registration)) {
-            model.addAttribute("errorMessage", "Passwords must match!");
-            log.warn("REGISTRATION: MainController.postRegister(email: {}, password: [PROTECTED]) - Passwords must match", registration.email());
-            return "register";
-        }
-        if (!registerService.passwordIsStrong(registration)) {
-            model.addAttribute("errorMessage", "Password is not strong!");
-            log.warn("REGISTRATION: MainController.passwordIsStrong(email: {}, password: [PROTECTED]) - password is not strong", registration.email());
-            return "register";
-        }
-        if (registerService.userExists(registration)) {
-            model.addAttribute("errorMessage", "User already exists!");
-            log.warn("REGISTRATION: MainController.userExists(email: {}, password: [PROTECTED]) - user already exists", registration.email());
-            return "reset";
-        }
-        registerService.registerNewUser(registration);
-        log.warn("REGISTRATION: MainController.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", registration.email());
-        return "redirect:/login"; // TODO: redirect to login page
+    public String postRegister(Registration registration, Model model, HttpServletRequest request) {
+        log.info("REQUEST: MainController.postRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        Map<String, String> returnedMap = registerService.registrationProcess(registration);
+        model.addAttribute("message", returnedMap.get("message"));
+        return returnedMap.get("page");
     }
 }
