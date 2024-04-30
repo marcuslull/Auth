@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = SecurityConfiguration.class)
+@SpringBootTest(classes = {SecurityConfiguration.class, TestConfiguration.class})
 @AutoConfigureMockMvc
 class SecurityConfigurationTest {
 
@@ -53,7 +54,7 @@ class SecurityConfigurationTest {
 
     @Test
     void shouldRedirectUnauthenticatedUserToLoginForm() throws Exception {
-        mvc.perform(get("/"))
+        mvc.perform(get("/invalid"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
     }
@@ -71,5 +72,4 @@ class SecurityConfigurationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?error"));
     }
-
 }
