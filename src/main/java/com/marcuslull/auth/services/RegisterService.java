@@ -54,7 +54,7 @@ public class RegisterService {
         if (userExists(registration)) {
             log.warn("REGISTRATION: MainController.userExists(email: {}, password: [PROTECTED]) - user already exists", registration.email());
             returnMap.put("message", "User already exists!");
-            returnMap.put("page", "reset");
+            returnMap.put("page", "register");
             return returnMap;
         }
 

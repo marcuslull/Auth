@@ -39,7 +39,7 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(authorize -> authorize
                         // must be ordered by specificity
-                        .requestMatchers("/favicon.ico", "/register", "/").permitAll()
+                        .requestMatchers("/favicon.ico", "/register", "/reset", "/").permitAll()
                         .anyRequest().authenticated())
 
                 .formLogin(Customizer.withDefaults());

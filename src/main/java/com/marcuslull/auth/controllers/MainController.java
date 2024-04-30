@@ -44,4 +44,10 @@ public class MainController {
         model.addAttribute("message", returnedMap.get("message"));
         return returnedMap.get("page");
     }
+
+    @GetMapping("/reset")
+    public String getReset(HttpServletRequest request) {
+        log.info("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        return "reset";
+    }
 }

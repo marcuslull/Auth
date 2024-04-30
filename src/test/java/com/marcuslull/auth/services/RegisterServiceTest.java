@@ -78,7 +78,7 @@ public class RegisterServiceTest {
 
         // assert
         assertEquals("User already exists!", result.get("message"));
-        assertEquals("reset", result.get("page"));
+        assertEquals("register", result.get("page"));
     }
 
     @Test

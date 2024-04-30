@@ -73,4 +73,11 @@ public class MainControllerTest {
         // assert
         verify(registerService, times(1)).registrationProcess(any(Registration.class));
     }
+
+    @Test
+    public void getResetTest() throws Exception {
+        mockMvc.perform(get("/reset"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("reset"));
+    }
 }
