@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.security.Principal;
 import java.util.Map;
 
 @Slf4j
@@ -23,8 +24,12 @@ public class MainController {
     }
 
     @GetMapping("/")
-    public String getIndex(HttpServletRequest request) {
+    public String getIndex(HttpServletRequest request, Model model, Principal principal) {
         log.info("REQUEST: MainController.getIndex() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        // anonymous check
+        if (principal == null) {
+            model.addAttribute("isAnon", true);
+        } else { model.addAttribute("isAnon", false); }
         return "index";
     }
 

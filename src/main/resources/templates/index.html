@@ -21,7 +21,8 @@
 
         <div class="col-4">
             <div class="row justify-content-evenly">
-                <a class="btn btn-outline-primary col-4" type="button" th:href="@{/login}">Login</a>
+                <a class="btn btn-outline-primary col-4" type="button" th:href="${isAnon} ? '/login' : '/logout'"
+                   th:text="${isAnon} ? 'Login' : 'Logout'"></a>
                 <a class="btn btn-outline-primary col-4" type="button" th:href="@{/register}">Register</a>
             </div>
         </div>
