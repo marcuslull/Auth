@@ -72,8 +72,8 @@ public class MainControllerTest {
     public void postRegisterTest() throws Exception {
         // arrange
         Map<String, String> expectedReturnMap = new HashMap<>();
-        expectedReturnMap.put("message", "Success!");
-        expectedReturnMap.put("page", "redirect:/login");
+        expectedReturnMap.put("message", "Success - Please check your email for verification link!");
+        expectedReturnMap.put("page", "register");
         when(registerService.registrationProcess(any(Registration.class))).thenReturn(expectedReturnMap);
 
         // act

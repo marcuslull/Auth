@@ -18,11 +18,13 @@ import java.util.regex.Pattern;
 public class RegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final VerificationService verificationService;
 
-    public RegisterService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        log.info("START: RegisterService");
+    public RegisterService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationService verificationService) {
+        this.verificationService = verificationService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        log.info("START: RegisterService");
     }
 
     public Map<String, String> registrationProcess(Registration registration) {
@@ -31,37 +33,36 @@ public class RegisterService {
         Map<String, String> returnMap = new HashMap<>();
 
         if (registration.email().isBlank() || registration.password().isBlank() || registration.confirmPassword().isBlank()) {
-            log.warn("REGISTRATION: MainController.postRegister(email: {}, password: [PROTECTED]) - Required field is blank", registration.email());
+            log.warn("REGISTRATION: RegisterService.registrationProcess(email: {}, password: [PROTECTED]) - Required field is blank", registration.email());
             returnMap.put("message", "Required field is blank!");
             returnMap.put("page", "register");
             return returnMap;
         }
 
         if (!passwordsMatch(registration)) {
-            log.warn("REGISTRATION: MainController.postRegister(email: {}, password: [PROTECTED]) - Passwords must match", registration.email());
+            log.warn("REGISTRATION: RegisterService.registrationProcess(email: {}, password: [PROTECTED]) - Passwords must match", registration.email());
             returnMap.put("message", "Passwords must match!");
             returnMap.put("page", "register");
             return returnMap;
         }
 
         if (!passwordIsStrong(registration)) {
-            log.warn("REGISTRATION: MainController.passwordIsStrong(email: {}, password: [PROTECTED]) - password is not strong", registration.email());
+            log.warn("REGISTRATION: RegisterService.registrationProcess(email: {}, password: [PROTECTED]) - password is not strong", registration.email());
             returnMap.put("message", "Password is not strong!");
             returnMap.put("page", "register");
             return returnMap;
         }
 
         if (userExists(registration)) {
-            log.warn("REGISTRATION: MainController.userExists(email: {}, password: [PROTECTED]) - user already exists", registration.email());
+            log.warn("REGISTRATION: RegisterService.registrationProcess(email: {}, password: [PROTECTED]) - user already exists", registration.email());
             returnMap.put("message", "User already exists!");
             returnMap.put("page", "register");
             return returnMap;
         }
 
-        log.warn("REGISTRATION: MainController.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", registration.email());
         registerNewUser(registration);
-        returnMap.put("message", "Success!");
-        returnMap.put("page", "redirect:/login");
+        returnMap.put("message", "Success - Please check your email for verification link!");
+        returnMap.put("page", "register");
         return returnMap;
     }
 
@@ -82,8 +83,10 @@ public class RegisterService {
         User user = new User();
         user.setUsername(registration.email());
         user.setPassword(passwordEncoder.encode(registration.password()));
-        user.setEnabled(true);
+        user.setEnabled(false);
         user.setGrantedAuthority(Collections.singletonList(new SimpleGrantedAuthority("USER")));
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        log.warn("REGISTRATION: RegisterService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
+        verificationService.verify(savedUser);
     }
 }
