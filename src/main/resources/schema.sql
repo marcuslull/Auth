@@ -22,6 +22,7 @@ create table authorities (
 create table verification(
     id bigint not null,
     code varchar(50) not null,
+    created timestamp not null,
     constraint fk_verification_users foreign key(id) references users
 );
 

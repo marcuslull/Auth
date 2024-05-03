@@ -111,7 +111,7 @@ public class RegisterServiceTest {
         when(passwordEncoder.encode("StrongPassword1@")).thenReturn("encodedPassword");
         Registration registration = new Registration("test@test.com", "StrongPassword1@", "StrongPassword1@");
         when(userRepository.save(any())).thenReturn(new User());
-        doNothing().when(verificationService).verify(any(User.class));
+        doNothing().when(verificationService).frontSideVerify(any(User.class));
 
         // act
         Map<String, String> result = registerService.registrationProcess(registration);

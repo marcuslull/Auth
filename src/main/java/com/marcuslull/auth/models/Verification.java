@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,4 +22,7 @@ public class Verification {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id", nullable = false)
     private User id;
+
+    @Column(name = "created", nullable = false)
+    private Instant created;
 }

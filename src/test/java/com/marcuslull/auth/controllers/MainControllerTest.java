@@ -2,6 +2,7 @@ package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.services.RegisterService;
+import com.marcuslull.auth.services.VerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class MainControllerTest {
     @MockBean
     private RegisterService registerService;
 
+    @MockBean
+    private VerificationService verificationService;
+
 
     @BeforeEach
     public void setup() {
@@ -40,7 +44,7 @@ public class MainControllerTest {
         viewResolver.setPrefix("/templates/");
         viewResolver.setSuffix(".html");
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new MainController(registerService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new MainController(registerService, verificationService))
                 .setViewResolvers(viewResolver)
                 .build();
     }

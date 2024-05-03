@@ -87,6 +87,6 @@ public class RegisterService {
         user.setGrantedAuthority(Collections.singletonList(new SimpleGrantedAuthority("USER")));
         User savedUser = userRepository.save(user);
         log.warn("REGISTRATION: RegisterService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
-        verificationService.verify(savedUser);
+        verificationService.frontSideVerify(savedUser);
     }
 }
