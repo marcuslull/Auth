@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -22,7 +21,7 @@ public class VerificationService {
     private final VerificationRepository verificationRepository;
     private final EmailService emailService;
 
-    public VerificationService(UserRepository userRepository, VerificationRepository verificationRepository, EmailService emailService, Clock clock) {
+    public VerificationService(UserRepository userRepository, VerificationRepository verificationRepository, EmailService emailService) {
         log.info("START: VerificationService");
         this.userRepository = userRepository;
         this.emailService = emailService;
@@ -77,6 +76,7 @@ public class VerificationService {
         Instant now = Instant.now();
         Duration duration = Duration.between(created, now);
         return duration.getSeconds() > 3600; // 1 hour expiration
+//        return duration.getSeconds() > 10; // 10 seconds
 }
 
     private void sendVerificationEmail(String email, String code) {

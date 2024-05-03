@@ -61,13 +61,22 @@ public class MainController {
     }
 
     @GetMapping("/verify")
-    public String getVerify(HttpServletRequest request, @RequestParam(name = "code") String code, Model model) {
+    public String getVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
         log.info("REQUEST: MainController.getVerify() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         log.info("REQUEST: MainController.getVerify() - Request parameter: code={}", code);
+
+        // redirect if no code
+        if (code == null) {
+            return "index";
+        }
+
+        // happy path
         if (verificationService.backSideVerify(code)) {
             model.addAttribute("isSuccess", true);
             return "verify";
         }
+
+        // TODO: most likely the token is expired so we need to send another
         model.addAttribute("isSuccess", false);
         return "verify";
     }
