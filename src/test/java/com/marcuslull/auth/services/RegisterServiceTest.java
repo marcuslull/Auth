@@ -6,7 +6,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.models.User;
+import com.marcuslull.auth.models.Verification;
 import com.marcuslull.auth.repositories.UserRepository;
+import com.marcuslull.auth.repositories.VerificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,11 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class RegisterServiceTest {
 
@@ -30,6 +32,8 @@ public class RegisterServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private VerificationService verificationService;
+    @Mock
+    private VerificationRepository verificationRepository;
     @InjectMocks
     private RegisterService registerService;
 
@@ -122,5 +126,25 @@ public class RegisterServiceTest {
         ILoggingEvent loggingEvent = listAppender.list.getFirst();
         assertEquals("REGISTRATION: RegisterService.registerNewUser(email: null, password: [PROTECTED]) - new user registered", loggingEvent.getFormattedMessage());
         assertEquals(Level.WARN, loggingEvent.getLevel());
+    }
+
+    @Test
+    public void resendVerificationCodeSuccess() {
+        // arrange
+        Verification verification = new Verification();
+        User user = new User();
+        user.setId(1L);
+        verification.setId(user);
+        when(verificationRepository.findByCode(anyString())).thenReturn(Optional.of(verification));
+        when(userRepository.getUserById(anyLong())).thenReturn(Optional.of(user));
+        doNothing().when(verificationService).frontSideVerify(any(User.class));
+        doNothing().when(verificationRepository).delete(any(Verification.class));
+
+        //act
+        registerService.resendVerificationCode("expiredUuid");
+
+        //assert
+        verify(verificationService, atLeastOnce()).frontSideVerify(any(User.class));
+        verify(verificationRepository, atLeastOnce()).delete(any(Verification.class));
     }
 }

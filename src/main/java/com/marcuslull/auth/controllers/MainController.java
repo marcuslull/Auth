@@ -76,7 +76,7 @@ public class MainController {
             return "verify";
         }
 
-        // TODO: most likely the token is expired so we need to send another
+        registerService.resendVerificationCode(code);
         model.addAttribute("isSuccess", false);
         return "verify";
     }

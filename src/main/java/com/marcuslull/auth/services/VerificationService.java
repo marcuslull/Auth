@@ -39,8 +39,7 @@ public class VerificationService {
             Verification savedVerification = verificationRepository.save(new Verification(code, user, creationTime));
             log.warn("REGISTRATION: VerificationService.frontSideVerify(user: {}) - new verification code created: {}", user.getUsername(), savedVerification.getCode());
             sendVerificationEmail(user.getUsername(), savedVerification.getCode());
-        } else { // this user has not registered their account yet
-            // TODO: Should the user be notified? If it got to this point the email structure has been validated 2X already so this should never really happen
+        } else { // this user has not registered their account yet - just drop the call
             log.warn("REGISTRATION: VerificationService.frontSideVerify(user: {}) - Invalid email", user.getUsername());
         }
     }
@@ -64,8 +63,7 @@ public class VerificationService {
                     return true;
                 }
             }
-            log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification is expired, removing obsolete verification record", code);
-            verificationRepository.delete(verification);
+            log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification is expired", code);
             return false;
         }
         log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification or User not found", code);

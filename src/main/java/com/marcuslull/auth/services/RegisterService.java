@@ -2,7 +2,9 @@ package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.models.User;
+import com.marcuslull.auth.models.Verification;
 import com.marcuslull.auth.repositories.UserRepository;
+import com.marcuslull.auth.repositories.VerificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,25 +13,43 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class RegisterService {
+    private final VerificationRepository verificationRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationService verificationService;
 
-    public RegisterService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationService verificationService) {
+    public RegisterService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationService verificationService,
+                           VerificationRepository verificationRepository) {
         this.verificationService = verificationService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         log.info("START: RegisterService");
+        this.verificationRepository = verificationRepository;
+    }
+
+    public void resendVerificationCode(String expiredCode) {
+        Optional<Verification> optionalVerification = verificationRepository.findByCode(expiredCode);
+        if (optionalVerification.isPresent()) {
+            Verification verification = optionalVerification.get();
+            Optional<User> optionalUser = userRepository.getUserById(verification.getId().getId());
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                log.warn("REGISTRATION: RegisterService.resendVerificationCode({}) - Found code and user, handing off to verification service and removing obsolete verification", expiredCode);
+                verificationService.frontSideVerify(user);
+                verificationRepository.delete(verification);
+            } else { log.warn("REGISTRATION: RegisterService.resendVerificationCode({}) - User not found, dropping the call", expiredCode); }
+        } else { log.warn("REGISTRATION: RegisterService.resendVerificationCode({}) - Verification not found, dropping the call", expiredCode); }
     }
 
     public Map<String, String> registrationProcess(Registration registration) {
 
-        // Will contain a "message" and an HTML "page"
+        // response will contain a "message" and an HTML "page"
         Map<String, String> returnMap = new HashMap<>();
 
         if (registration.email().isBlank() || registration.password().isBlank() || registration.confirmPassword().isBlank()) {

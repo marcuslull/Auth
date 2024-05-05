@@ -93,4 +93,46 @@ public class MainControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("reset"));
     }
+
+    @Test
+    public void getVerifyTest() throws Exception {
+        // arrange
+        when(verificationService.backSideVerify("uuidCode")).thenReturn(true);
+
+        // act
+        mockMvc.perform(get("/verify?code=uuidCode"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("verify"))
+                .andExpect(model().attribute("isSuccess", true));
+
+        // assert
+    }
+
+    @Test
+    public void getVerifyRedirectedTest() throws Exception {
+        // arrange
+
+        // act
+        mockMvc.perform(get("/verify"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"));
+
+        // assert
+    }
+
+    @Test
+    public void getVerifyResendTest() throws Exception {
+        // arrange
+        when(verificationService.backSideVerify("uuidCode")).thenReturn(false);
+        doNothing().when(registerService).resendVerificationCode("uuidCode");
+
+        // act
+        mockMvc.perform(get("/verify?code=uuidCode"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("verify"))
+                .andExpect(model().attribute("isSuccess", false));
+
+        // assert
+        verify(registerService, atLeastOnce()).resendVerificationCode("uuidCode");
+    }
 }
