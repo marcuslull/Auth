@@ -2,6 +2,7 @@ package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.services.RegisterService;
+import com.marcuslull.auth.services.VerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class MainControllerTest {
     @MockBean
     private RegisterService registerService;
 
+    @MockBean
+    private VerificationService verificationService;
+
 
     @BeforeEach
     public void setup() {
@@ -40,7 +44,7 @@ public class MainControllerTest {
         viewResolver.setPrefix("/templates/");
         viewResolver.setSuffix(".html");
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new MainController(registerService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new MainController(registerService, verificationService))
                 .setViewResolvers(viewResolver)
                 .build();
     }
@@ -72,8 +76,8 @@ public class MainControllerTest {
     public void postRegisterTest() throws Exception {
         // arrange
         Map<String, String> expectedReturnMap = new HashMap<>();
-        expectedReturnMap.put("message", "Success!");
-        expectedReturnMap.put("page", "redirect:/login");
+        expectedReturnMap.put("message", "Success - Please check your email for verification link!");
+        expectedReturnMap.put("page", "register");
         when(registerService.registrationProcess(any(Registration.class))).thenReturn(expectedReturnMap);
 
         // act
@@ -88,5 +92,47 @@ public class MainControllerTest {
         mockMvc.perform(get("/reset"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("reset"));
+    }
+
+    @Test
+    public void getVerifyTest() throws Exception {
+        // arrange
+        when(verificationService.backSideVerify("uuidCode")).thenReturn(true);
+
+        // act
+        mockMvc.perform(get("/verify?code=uuidCode"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("verify"))
+                .andExpect(model().attribute("isSuccess", true));
+
+        // assert
+    }
+
+    @Test
+    public void getVerifyRedirectedTest() throws Exception {
+        // arrange
+
+        // act
+        mockMvc.perform(get("/verify"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"));
+
+        // assert
+    }
+
+    @Test
+    public void getVerifyResendTest() throws Exception {
+        // arrange
+        when(verificationService.backSideVerify("uuidCode")).thenReturn(false);
+        doNothing().when(registerService).resendVerificationCode("uuidCode");
+
+        // act
+        mockMvc.perform(get("/verify?code=uuidCode"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("verify"))
+                .andExpect(model().attribute("isSuccess", false));
+
+        // assert
+        verify(registerService, atLeastOnce()).resendVerificationCode("uuidCode");
     }
 }

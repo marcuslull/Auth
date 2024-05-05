@@ -2,12 +2,14 @@ package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.services.RegisterService;
+import com.marcuslull.auth.services.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.Map;
@@ -17,9 +19,11 @@ import java.util.Map;
 public class MainController {
 
     private final RegisterService registerService;
+    private final VerificationService verificationService;
 
-    public MainController(RegisterService registerService) {
+    public MainController(RegisterService registerService, VerificationService verificationService) {
         this.registerService = registerService;
+        this.verificationService = verificationService;
         log.info("START: MainController");
     }
 
@@ -54,5 +58,26 @@ public class MainController {
     public String getReset(HttpServletRequest request) {
         log.info("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         return "reset";
+    }
+
+    @GetMapping("/verify")
+    public String getVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
+        log.info("REQUEST: MainController.getVerify() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        log.info("REQUEST: MainController.getVerify() - Request parameter: code={}", code);
+
+        // redirect if no code
+        if (code == null) {
+            return "index";
+        }
+
+        // happy path
+        if (verificationService.backSideVerify(code)) {
+            model.addAttribute("isSuccess", true);
+            return "verify";
+        }
+
+        registerService.resendVerificationCode(code);
+        model.addAttribute("isSuccess", false);
+        return "verify";
     }
 }
