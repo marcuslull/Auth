@@ -1,7 +1,8 @@
 package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
-import com.marcuslull.auth.services.RegisterService;
+import com.marcuslull.auth.services.RegistrationService;
+import com.marcuslull.auth.services.ValidationService;
 import com.marcuslull.auth.services.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +20,14 @@ import java.util.Map;
 @Controller
 public class MainController {
 
-    private final RegisterService registerService;
+    private final RegistrationService registrationService;
     private final VerificationService verificationService;
+    private final ValidationService validationService;
 
-    public MainController(RegisterService registerService, VerificationService verificationService) {
-        this.registerService = registerService;
+    public MainController(RegistrationService registrationService, VerificationService verificationService, ValidationService validationService) {
+        this.registrationService = registrationService;
         this.verificationService = verificationService;
+        this.validationService = validationService;
         log.info("START: MainController");
     }
 
@@ -47,9 +50,11 @@ public class MainController {
     @PostMapping("/register")
     public String postRegister(Registration registration, Model model, HttpServletRequest request) {
         log.info("REQUEST: MainController.postRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        Map<String, String> returnedMap = registerService.registrationProcess(registration);
-        if (!returnedMap.containsKey("message") || !returnedMap.containsKey("page")) {
-            throw new RuntimeException("Register service returned malformed instructions");
+        Map<String, String> returnedMap = validationService.validateRegistration(registration);
+        if (returnedMap.isEmpty()) {
+            registrationService.registerNewUser(registration);
+            returnedMap.put("message", "Success - Please check your email for verification link!");
+            returnedMap.put("page", "register");
         }
         model.addAttribute("message", returnedMap.get("message"));
         return returnedMap.get("page");
@@ -58,45 +63,57 @@ public class MainController {
     @GetMapping("/reset")
     public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
         log.info("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (code != null) { // second time through we need to pass this code to the POST form
+
+        // This begins the password reset flow (GET /reset > POST /reset(email) > GET /reset(resetCode) > POST /reset(resetCode, new credentials))
+        // first GET - resetCode should not be present
+        if (code == null) {
+            log.info("REQUEST: MainController.getReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            model.addAttribute("isGet", true); // the view needs to know where we are at in the process
+            model.addAttribute("message", "");
+        }
+
+        // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
+        else {
             log.info("REQUEST: MainController.getReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             model.addAttribute("isGet", false);
             model.addAttribute("code", code);
-        } else { // first time through
-            log.info("REQUEST: MainController.getReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
-            model.addAttribute("isGet", true);
-            model.addAttribute("message", "");
         }
+
         return "reset";
     }
 
     @PostMapping("/reset")
     public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
         log.info("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-
         Map<String, String> returnMap = new HashMap<>();
-        if (code != null) { // second time through we should have a code. We need to validate the new pass and update the account
+
+        // TODO: Send all this logic to the service layer
+
+        // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
+        if (code == null) {
+            log.warn("REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
+            log.info("REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            returnMap = registrationService.registerNewPassword(registration); // service layer can respond with email validity messages
+            model.addAttribute("isGet", true);
+            model.addAttribute("message", returnMap.get("message"));
+        }
+
+        // second POST, user has entered new credentials. Need hand-off to service layer for credential validation and the update
+        else {
             log.info("REQUEST: MainController.postReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
-            returnMap = registerService.resetValidate(registration);
-            if (returnMap.containsKey("message")) {
+            returnMap = validationService.validatePasswordReset(registration);
+            if (returnMap.containsKey("message")) { // any password validity issues are returned to the view here
                 model.addAttribute("message", returnMap.get("message"));
                 return "reset";
             }
-            if (verificationService.backSideVerify(code, registration)) { // TODO: Should I use RegisterService.updatePassword() instead?
+            if (verificationService.backSideVerify(code, registration)) { // happy path
                 model.addAttribute("message", "Success - please login.");
                 return "reset";
             }
             model.addAttribute("isGet", true);
-            return "reset";
         }
-        else { // first time through, we need to check for valid user and generate code
-            log.warn("REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
-            log.info("REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
-            returnMap = registerService.resetPassword(registration);
-            model.addAttribute("isGet", true);
-            model.addAttribute("message", returnMap.get("message"));
-            return "reset";
-        }
+
+        return "reset";
     }
 
     @GetMapping("/verify")
@@ -115,7 +132,7 @@ public class MainController {
             return "verify";
         }
 
-        registerService.resendVerificationCode(code);
+        registrationService.registerNewVerificationCode(code);
         model.addAttribute("isSuccess", false);
         return "verify";
     }

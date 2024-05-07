@@ -10,11 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -23,8 +21,10 @@ public class VerificationService {
     private final VerificationRepository verificationRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final ValidationService validationService;
 
-    public VerificationService(UserRepository userRepository, VerificationRepository verificationRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+    public VerificationService(UserRepository userRepository, VerificationRepository verificationRepository, EmailService emailService, PasswordEncoder passwordEncoder, ValidationService validationService) {
+        this.validationService = validationService;
         log.info("START: VerificationService");
         this.userRepository = userRepository;
         this.emailService = emailService;
@@ -33,10 +33,8 @@ public class VerificationService {
     }
 
     public void frontSideVerify(User user, boolean isReset) {
-        // Java does not like multiline patterns...
-        String EMAIL_VERIFICATION_PATTERN ="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
 
-        if (Pattern.matches(EMAIL_VERIFICATION_PATTERN, user.getUsername().trim())) {
+        if (validationService.emailIsWellFormed(user)) {
             // code, timestamp and user id make up a verification. A short-lived email verification scheme
             String code = UUID.randomUUID().toString();
             Instant creationTime = Instant.now();
@@ -56,7 +54,7 @@ public class VerificationService {
             Verification verification = optionalVerification.get();
             Instant creationTime = verification.getCreated();
 
-            if (!isExpired(creationTime)) {
+            if (validationService.codeIsNotExpired(creationTime)) {
                 Optional<User> optionalUser = userRepository.getUserById(verification.getId().getId());
                 if (optionalUser.isPresent()) { // HAPPY PATH - the user, email, and code are verified, enable the account
                     User user = optionalUser.get();
@@ -70,7 +68,7 @@ public class VerificationService {
             log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification is expired", code);
             return false;
         }
-        log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification or User not found", code);
+        log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification or User not found - dropping the call", code);
         return false;
     }
 
@@ -84,7 +82,7 @@ public class VerificationService {
             Verification verification = optionalVerification.get();
             Instant creationTime = verification.getCreated();
 
-            if (!isExpired(creationTime)) {
+            if (validationService.codeIsNotExpired(creationTime)) {
                 Optional<User> optionalUser = userRepository.getUserById(verification.getId().getId());
                 if (optionalUser.isPresent()) { // HAPPY PATH - the user, email, and code are verified, enable the account
                     User user = optionalUser.get();
@@ -101,11 +99,4 @@ public class VerificationService {
         log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification or User not found", cleanCode);
         return false;
     }
-
-    private boolean isExpired(Instant created){
-        Instant now = Instant.now();
-        Duration duration = Duration.between(created, now);
-        return duration.getSeconds() > 3600; // 1 hour expiration
-//        return duration.getSeconds() > 10; // 10 seconds
-}
 }
