@@ -15,12 +15,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     public CustomUserDetailsService(UserRepository userRepository) {
+        log.info("START: CustomUserDetailsService");
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("START: CustomUserDetailsService.loadUserByUsername({})", username);
+        log.info("USER: CustomUserDetailsService.loadUserByUsername({})", username);
         // Showing Spring how to get the user info from our custom implementation
         return userRepository.getUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));

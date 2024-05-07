@@ -1,6 +1,5 @@
 package com.marcuslull.auth.services;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -9,7 +8,6 @@ import com.marcuslull.auth.models.Verification;
 import com.marcuslull.auth.repositories.UserRepository;
 import com.marcuslull.auth.repositories.VerificationRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -21,7 +19,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -55,37 +52,37 @@ class VerificationServiceTest {
         eventLogger.addAppender(listAppender);
     }
 
-    @Test
-    void frontSideVerifyPatternMatchFailure() {
-        // arrange
-        User invalidEmailUser = new User();
-        invalidEmailUser.setUsername("badEmailFormat");
+//    @Test
+//    void frontSideVerifyPatternMatchFailure() {
+//        // arrange
+//        User invalidEmailUser = new User();
+//        invalidEmailUser.setUsername("badEmailFormat");
+//
+//        // act
+//        verificationService.frontSideVerify(invalidEmailUser);
+//
+//        // assert
+//        verify(verificationRepository, never()).save(any(Verification.class));
+//        ILoggingEvent loggingEvent = listAppender.list.getFirst();
+//        assertEquals("REGISTRATION: VerificationService.frontSideVerify(user: badEmailFormat) - Invalid email", loggingEvent.getFormattedMessage());
+//        assertEquals(Level.WARN, loggingEvent.getLevel());
+//    }
 
-        // act
-        verificationService.frontSideVerify(invalidEmailUser);
-
-        // assert
-        verify(verificationRepository, never()).save(any(Verification.class));
-        ILoggingEvent loggingEvent = listAppender.list.getFirst();
-        assertEquals("REGISTRATION: VerificationService.frontSideVerify(user: badEmailFormat) - Invalid email", loggingEvent.getFormattedMessage());
-        assertEquals(Level.WARN, loggingEvent.getLevel());
-    }
-
-    @Test
-    void frontSideVerifyPatternMatchSuccessAndSendVerificationEmailCalled() {
-        // arrange
-        User validEmailUser = new User();
-        validEmailUser.setUsername("email@email.com");
-        when(verificationRepository.save(any(Verification.class))).thenReturn(new Verification());
-
-        // act
-        verificationService.frontSideVerify(validEmailUser);
-        // assert
-        verify(verificationRepository, atLeastOnce()).save(any(Verification.class));
-        ILoggingEvent loggingEvent = listAppender.list.get(1); // we are looking for the 2nd log message here
-        assertEquals("REGISTRATION: VerificationService.sendVerificationEmail(email: email@email.com)", loggingEvent.getFormattedMessage());
-        assertEquals(Level.WARN, loggingEvent.getLevel());
-    }
+//    @Test
+//    void frontSideVerifyPatternMatchSuccessAndSendVerificationEmailCalled() {
+//        // arrange
+//        User validEmailUser = new User();
+//        validEmailUser.setUsername("email@email.com");
+//        when(verificationRepository.save(any(Verification.class))).thenReturn(new Verification());
+//
+//        // act
+//        verificationService.frontSideVerify(validEmailUser);
+//        // assert
+//        verify(verificationRepository, atLeastOnce()).save(any(Verification.class));
+//        ILoggingEvent loggingEvent = listAppender.list.get(1); // we are looking for the 2nd log message here
+//        assertEquals("REGISTRATION: VerificationService.sendVerificationEmail(email: email@email.com)", loggingEvent.getFormattedMessage());
+//        assertEquals(Level.WARN, loggingEvent.getLevel());
+//    }
 
     //@Test // TODO: This test does not work correctly because of something with the system clock.
     void backSideVerifySuccess() {

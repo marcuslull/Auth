@@ -33,6 +33,28 @@ public class RegisterService {
         this.verificationRepository = verificationRepository;
     }
 
+//    public Map<String, String> updatePassword(Registration registration) {
+//        Map<String, String> returnMap = new HashMap<>();
+//
+//        Optional<User> optionalUser = userRepository.getUserByUsername(registration.email());
+//        if (optionalUser.isPresent()) {
+//            User user = optionalUser.get();
+//            if (passwordsMatch(registration) && passwordIsStrong(registration) && requiredFieldsAreNotBlank(registration)) {
+//                user.setPassword(passwordEncoder.encode(registration.password()));
+//                userRepository.save(user);
+//                log.warn("REGISTRATION: RegisterService.updatePassword(email: {}, password: [PROTECTED]) - Update successful", registration.email());
+//                returnMap.put("message", "Success - please login to continue");
+//            } else {
+//                log.warn("REGISTRATION: RegisterService.updatePassword(email: {}, password: [PROTECTED]) - Passwords dont match or not strong enough", registration.email());
+//                returnMap.put("message", "Passwords do not match or does not meet strength requirements");
+//            }
+//        } else {
+//            log.warn("REGISTRATION: RegisterService.updatePassword(email: {}, password: [PROTECTED]) - User was not found", registration.email());
+//            returnMap.put("message", "User not found");
+//        }
+//        return returnMap;
+//    }
+
     public void resendVerificationCode(String expiredCode) {
         Optional<Verification> optionalVerification = verificationRepository.findByCode(expiredCode);
         if (optionalVerification.isPresent()) {
@@ -41,7 +63,7 @@ public class RegisterService {
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();
                 log.warn("REGISTRATION: RegisterService.resendVerificationCode({}) - Found code and user, handing off to verification service and removing obsolete verification", expiredCode);
-                verificationService.frontSideVerify(user);
+                verificationService.frontSideVerify(user, false);
                 verificationRepository.delete(verification);
             } else { log.warn("REGISTRATION: RegisterService.resendVerificationCode({}) - User not found, dropping the call", expiredCode); }
         } else { log.warn("REGISTRATION: RegisterService.resendVerificationCode({}) - Verification not found, dropping the call", expiredCode); }
@@ -52,7 +74,7 @@ public class RegisterService {
         // response will contain a "message" and an HTML "page"
         Map<String, String> returnMap = new HashMap<>();
 
-        if (registration.email().isBlank() || registration.password().isBlank() || registration.confirmPassword().isBlank()) {
+        if (requiredFieldsAreNotBlank(registration)) {
             log.warn("REGISTRATION: RegisterService.registrationProcess(email: {}, password: [PROTECTED]) - Required field is blank", registration.email());
             returnMap.put("message", "Required field is blank!");
             returnMap.put("page", "register");
@@ -86,6 +108,28 @@ public class RegisterService {
         return returnMap;
     }
 
+    public Map<String, String> resetValidate(Registration registration) {
+        // response will contain a "message"
+        Map<String, String> returnMap = new HashMap<>();
+
+        if (!passwordsMatch(registration)) {
+            log.warn("REGISTRATION: RegisterService.resetValidate() - Passwords must match");
+            returnMap.put("message", "Passwords must match!");
+            return returnMap;
+        }
+
+        if (!passwordIsStrong(registration)) {
+            log.warn("REGISTRATION: RegisterService.resetValidate() - password is not strong");
+            returnMap.put("message", "Password is not strong!");
+            return returnMap;
+        }
+        return returnMap;
+    }
+
+    private boolean requiredFieldsAreNotBlank(Registration registration) {
+        return registration.email().isBlank() || registration.password().isBlank() || registration.confirmPassword().isBlank();
+    }
+
     private boolean passwordsMatch(Registration registration) {
         return registration.password().trim().equals(registration.confirmPassword().trim());
     }
@@ -107,6 +151,21 @@ public class RegisterService {
         user.setGrantedAuthority(Collections.singletonList(new SimpleGrantedAuthority("USER")));
         User savedUser = userRepository.save(user);
         log.warn("REGISTRATION: RegisterService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
-        verificationService.frontSideVerify(savedUser);
+        verificationService.frontSideVerify(savedUser, false);
+    }
+
+
+    public Map<String, String> resetPassword(Registration registration) {
+        Map<String, String> returnMap = new HashMap<>();
+        Optional<User> optionalUser = userRepository.getUserByUsername(registration.email());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            verificationService.frontSideVerify(user, true);
+            returnMap.put("message", "A password reset will be emailed to you soon");
+            return returnMap;
+        }
+        log.warn("REGISTRATION: RegisterService.resetPassword({}) - User was not found, dropping the call", registration.email());
+        returnMap.put("message", "A password reset will be emailed to you soon");
+        return returnMap;
     }
 }

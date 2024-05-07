@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -55,9 +56,47 @@ public class MainController {
     }
 
     @GetMapping("/reset")
-    public String getReset(HttpServletRequest request) {
+    public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
         log.info("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        if (code != null) { // second time through we need to pass this code to the POST form
+            log.info("REQUEST: MainController.getReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            model.addAttribute("isGet", false);
+            model.addAttribute("code", code);
+        } else { // first time through
+            log.info("REQUEST: MainController.getReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            model.addAttribute("isGet", true);
+            model.addAttribute("message", "");
+        }
         return "reset";
+    }
+
+    @PostMapping("/reset")
+    public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
+        log.info("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+
+        Map<String, String> returnMap = new HashMap<>();
+        if (code != null) { // second time through we should have a code. We need to validate the new pass and update the account
+            log.info("REQUEST: MainController.postReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            returnMap = registerService.resetValidate(registration);
+            if (returnMap.containsKey("message")) {
+                model.addAttribute("message", returnMap.get("message"));
+                return "reset";
+            }
+            if (verificationService.backSideVerify(code, registration)) { // TODO: Should I use RegisterService.updatePassword() instead?
+                model.addAttribute("message", "Success - please login.");
+                return "reset";
+            }
+            model.addAttribute("isGet", true);
+            return "reset";
+        }
+        else { // first time through, we need to check for valid user and generate code
+            log.warn("REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
+            log.info("REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            returnMap = registerService.resetPassword(registration);
+            model.addAttribute("isGet", true);
+            model.addAttribute("message", returnMap.get("message"));
+            return "reset";
+        }
     }
 
     @GetMapping("/verify")

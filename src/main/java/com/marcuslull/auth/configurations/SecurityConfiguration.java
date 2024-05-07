@@ -65,6 +65,7 @@ public class SecurityConfiguration {
         log.info("START: SecurityConfiguration.passwordEncoder");
         // Argon2 encoder is a current best practice for password hashing
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
-        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20);
+//        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20); // TODO: Change before PROD
+        return new Argon2PasswordEncoder(16, 32, 1, 1 << 8, 1); // testing only
     }
 }
