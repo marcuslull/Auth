@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -34,7 +33,6 @@ public class MainController {
     @GetMapping("/")
     public String getIndex(HttpServletRequest request, Model model, Principal principal) {
         log.info("REQUEST: MainController.getIndex() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        // anonymous check
         if (principal == null) {
             model.addAttribute("isAnon", true);
         } else { model.addAttribute("isAnon", false); }
@@ -63,50 +61,39 @@ public class MainController {
     @GetMapping("/reset")
     public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
         log.info("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-
         // This begins the password reset flow (GET /reset > POST /reset(email) > GET /reset(resetCode) > POST /reset(resetCode, new credentials))
-        // first GET - resetCode should not be present
-        if (code == null) {
+        if (code == null) { // first GET - resetCode should not be present
             log.info("REQUEST: MainController.getReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             model.addAttribute("isGet", true); // the view needs to know where we are at in the process
             model.addAttribute("message", "");
         }
-
-        // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
-        else {
+        else { // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
             log.info("REQUEST: MainController.getReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             model.addAttribute("isGet", false);
             model.addAttribute("code", code);
         }
-
         return "reset";
     }
 
     @PostMapping("/reset")
     public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
         log.info("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        Map<String, String> returnMap = new HashMap<>();
-
-        // TODO: Send all this logic to the service layer
-
-        // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
-        if (code == null) {
+        Map<String, String> returnMap;
+        if (code == null) { // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
             log.warn("REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
             log.info("REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             returnMap = registrationService.registerNewPassword(registration); // service layer can respond with email validity messages
             model.addAttribute("isGet", true);
             model.addAttribute("message", returnMap.get("message"));
         }
-
-        // second POST, user has entered new credentials. Need hand-off to service layer for credential validation and the update
-        else {
+        else { // second POST, user has entered new credentials. Need hand-off to service layer for credential validation and the update
             log.info("REQUEST: MainController.postReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             returnMap = validationService.validatePasswordReset(registration);
             if (returnMap.containsKey("message")) { // any password validity issues are returned to the view here
                 model.addAttribute("message", returnMap.get("message"));
                 return "reset";
             }
-            if (verificationService.verificationCodeProcessor(code, registration)) { // happy path
+            if (verificationService.verificationCodeProcessor(code, registration)) {
                 model.addAttribute("message", "Success - please login.");
                 return "reset";
             }

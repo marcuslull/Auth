@@ -74,6 +74,18 @@ public class ValidationService {
         return returnMap;
     }
 
+    public boolean emailIsWellFormed(User user) {
+        String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+        return Pattern.matches(EMAIL_VERIFICATION_PATTERN, user.getUsername().trim());
+    }
+
+    public boolean codeIsNotExpired(Instant created){
+        Instant now = Instant.now();
+        Duration duration = Duration.between(created, now);
+        return duration.getSeconds() <= 3600; // 1 hour expiration
+//        return duration.getSeconds() <= 10; // 10 seconds
+    }
+
     private boolean requiredFieldsAreNotBlank(Registration registration) {
         return registration.email().isBlank() || registration.password().isBlank() || registration.confirmPassword().isBlank();
     }
@@ -89,17 +101,5 @@ public class ValidationService {
 
     private boolean userExists(Registration registration) {
         return userRepository.existsByUsername(registration.email());
-    }
-
-    public boolean emailIsWellFormed(User user) {
-        String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
-        return Pattern.matches(EMAIL_VERIFICATION_PATTERN, user.getUsername().trim());
-    }
-
-    public boolean codeIsNotExpired(Instant created){
-        Instant now = Instant.now();
-        Duration duration = Duration.between(created, now);
-        return duration.getSeconds() <= 3600; // 1 hour expiration
-//        return duration.getSeconds() <= 10; // 10 seconds
     }
 }
