@@ -23,17 +23,56 @@ public class VerificationService {
     private final PasswordEncoder passwordEncoder;
     private final ValidationService validationService;
 
-    public VerificationService(UserRepository userRepository, VerificationRepository verificationRepository, EmailService emailService, PasswordEncoder passwordEncoder, ValidationService validationService) {
-        this.validationService = validationService;
+    public VerificationService(UserRepository userRepository, VerificationRepository verificationRepository,
+                               EmailService emailService, PasswordEncoder passwordEncoder,
+                               ValidationService validationService) {
         log.info("START: VerificationService");
+        this.validationService = validationService;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.verificationRepository = verificationRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void frontSideVerify(User user, boolean isReset) {
+    @Transactional
+    public boolean verificationCodeProcessor(String code, Registration registration) {
+        // this orchestrates three branches for verification codes - password reset, account registration, handle expired codes
+        Verification verification = verificationEntryGetter(code);
+        if (verification != null) {
+            User user = verificationUserGetter(verification.getId().getId());
+            if (validationService.codeIsNotExpired(verification.getCreated())) {
+                if (user != null) {
+                    if (registration.isReset()) { // this branch is for password resets
+                        user.setPassword(passwordEncoder.encode(registration.password()));
+                        userRepository.save(user);
+                        verificationRepository.delete(verification);
+                        log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} password updated, removing obsolete verification record", code, user.getUsername());
+                    }
+                    else { // this branch is for new registrations
+                        user.setEnabled(true);
+                        userRepository.save(user);
+                        verificationRepository.delete(verification);
+                        log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} account now enabled, removing obsolete verification record", code, user.getUsername());
+                    }
+                    return true;
+                }
+                else {
+                    log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - User not found - dropping the call", code);
+                    return false;
+                }
+            }
+            else { // this branch is for expired verification codes
+                log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Verification is expired, user: {} removing obsolete verification and generating a new one", code, user.getUsername());
+                verificationCodeGenerator(user, false);
+                verificationRepository.delete(verification);
+                return true;
+            }
+        }
+        log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Verification not found - dropping the call", code);
+        return false;
+    }
 
+    public void verificationCodeGenerator(User user, boolean isReset) {
         if (validationService.emailIsWellFormed(user)) {
             // code, timestamp and user id make up a verification. A short-lived email verification scheme
             String code = UUID.randomUUID().toString();
@@ -46,57 +85,15 @@ public class VerificationService {
         }
     }
 
-    @Transactional
-    public boolean backSideVerify(String code) {
-        // verifies the user, the code, and the expiration are all valid and enables the account
-        Optional<Verification> optionalVerification = verificationRepository.findByCode(code);
-        if (optionalVerification.isPresent()) {
-            Verification verification = optionalVerification.get();
-            Instant creationTime = verification.getCreated();
-
-            if (validationService.codeIsNotExpired(creationTime)) {
-                Optional<User> optionalUser = userRepository.getUserById(verification.getId().getId());
-                if (optionalUser.isPresent()) { // HAPPY PATH - the user, email, and code are verified, enable the account
-                    User user = optionalUser.get();
-                    user.setEnabled(true);
-                    userRepository.save(user);
-                    verificationRepository.delete(verification);
-                    log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Email verified, user: {} account now enabled, removing obsolete verification record", code, user.getUsername());
-                    return true;
-                }
-            }
-            log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification is expired", code);
-            return false;
-        }
-        log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification or User not found - dropping the call", code);
-        return false;
+    private User verificationUserGetter(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        return optionalUser.orElse(null);
     }
 
-    @Transactional
-    public boolean backSideVerify(String code, Registration registration) {
+    private Verification verificationEntryGetter(String code) {
         // clean up the code, sometimes the model likes to add commas to it if the user had to make several attempts at getting a well-formed password
         String cleanCode = code.split(",")[0];
-        // verifies the user, the code, and the expiration are all valid and enables the account
         Optional<Verification> optionalVerification = verificationRepository.findByCode(cleanCode);
-        if (optionalVerification.isPresent()) {
-            Verification verification = optionalVerification.get();
-            Instant creationTime = verification.getCreated();
-
-            if (validationService.codeIsNotExpired(creationTime)) {
-                Optional<User> optionalUser = userRepository.getUserById(verification.getId().getId());
-                if (optionalUser.isPresent()) { // HAPPY PATH - the user, email, and code are verified, enable the account
-                    User user = optionalUser.get();
-                    user.setPassword(passwordEncoder.encode(registration.password()));
-                    userRepository.save(user);
-                    verificationRepository.delete(verification);
-                    log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Email verified, user: {} password updated, removing obsolete verification record", cleanCode, user.getUsername());
-                    return true;
-                }
-            }
-            log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification is expired", cleanCode);
-            return false;
-        }
-        log.warn("REGISTRATION: VerificationService.backSideVerify(code: {}) - Verification or User not found", cleanCode);
-        return false;
+        return optionalVerification.orElse(null);
     }
 }

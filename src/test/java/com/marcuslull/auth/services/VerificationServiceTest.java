@@ -85,7 +85,7 @@ class VerificationServiceTest {
 //    }
 
     //@Test // TODO: This test does not work correctly because of something with the system clock.
-    void backSideVerifySuccess() {
+    void verificationCodeVerifierSuccess() {
         // arrange
         Clock clock = Clock.systemUTC();
         User user = new User();
@@ -98,7 +98,7 @@ class VerificationServiceTest {
         doNothing().when(verificationRepository).delete(any(Verification.class));
 
         // act
-        boolean result = verificationService.backSideVerify(uuid);
+        boolean result = verificationService.verificationCodeVerifier(uuid);
 
 
         // assert
@@ -106,17 +106,17 @@ class VerificationServiceTest {
     }
 
     //@Test // TODO: This test does not work correctly because of something with the system clock.
-    void backSideVerifyFailureVerificationNotFound() {
+    void verificationCodeVerifierFailureVerificationNotFound() {
 
     }
 
     //@Test // TODO: This test does not work correctly because of something with the system clock.
-    void backSideVerifyCodeExpired() {
+    void verificationCodeVerifierCodeExpired() {
 
     }
 
     //@Test // TODO: This test does not work correctly because of something with the system clock.
-    void backSideVerifyUserNotFound() {
+    void verificationCodeVerifierUserNotFound() {
 
     }
 }

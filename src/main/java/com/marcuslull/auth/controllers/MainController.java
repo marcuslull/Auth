@@ -106,13 +106,12 @@ public class MainController {
                 model.addAttribute("message", returnMap.get("message"));
                 return "reset";
             }
-            if (verificationService.backSideVerify(code, registration)) { // happy path
+            if (verificationService.verificationCodeProcessor(code, registration)) { // happy path
                 model.addAttribute("message", "Success - please login.");
                 return "reset";
             }
             model.addAttribute("isGet", true);
         }
-
         return "reset";
     }
 
@@ -120,20 +119,17 @@ public class MainController {
     public String getVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
         log.info("REQUEST: MainController.getVerify() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         log.info("REQUEST: MainController.getVerify() - Request parameter: code={}", code);
-
-        // redirect if no code
-        if (code == null) {
+        // need a registration record for processor logic
+        Registration registration = new Registration(null,null,null,null, false);
+        if (code == null) { // no code... what are they doing here?
             return "index";
         }
-
-        // happy path
-        if (verificationService.backSideVerify(code)) {
+        else if (verificationService.verificationCodeProcessor(code, registration)) { // happy path
             model.addAttribute("isSuccess", true);
-            return "verify";
         }
-
-        registrationService.registerNewVerificationCode(code);
-        model.addAttribute("isSuccess", false);
+        else { // failing validation
+            model.addAttribute("isSuccess", false);
+        }
         return "verify";
     }
 }

@@ -53,10 +53,6 @@ public class ValidationService {
             returnMap.put("page", "register");
             return returnMap;
         }
-
-//        registrationService.registerNewUser(registration);
-//        returnMap.put("message", "Success - Please check your email for verification link!");
-//        returnMap.put("page", "register");
         return returnMap;
     }
 
