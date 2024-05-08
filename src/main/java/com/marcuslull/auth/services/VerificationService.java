@@ -46,29 +46,29 @@ public class VerificationService {
                         user.setPassword(passwordEncoder.encode(registration.password()));
                         userRepository.save(user);
                         verificationRepository.delete(verification);
-                        log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} password updated, removing obsolete verification record", code, user.getUsername());
+                        log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} password updated, removing obsolete verification record", code, user.getUsername());
                     }
                     else { // this branch is for new registrations
                         user.setEnabled(true);
                         userRepository.save(user);
                         verificationRepository.delete(verification);
-                        log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} account now enabled, removing obsolete verification record", code, user.getUsername());
+                        log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} account now enabled, removing obsolete verification record", code, user.getUsername());
                     }
                     return true;
                 }
                 else {
-                    log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - User not found - dropping the call", code);
+                    log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - User not found - dropping the call", code);
                     return false;
                 }
             }
             else { // this branch is for expired verification codes
-                log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Verification is expired, user: {} removing obsolete verification and generating a new one", code, user.getUsername());
+                log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - Verification is expired, user: {} removing obsolete verification and generating a new one", code, user.getUsername());
                 verificationCodeGenerator(user, false);
                 verificationRepository.delete(verification);
                 return true;
             }
         }
-        log.warn("REGISTRATION: VerificationService.verificationCodeProcessor(code: {}) - Verification not found - dropping the call", code);
+        log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - Verification not found - dropping the call", code);
         return false;
     }
 
@@ -78,10 +78,10 @@ public class VerificationService {
             String code = UUID.randomUUID().toString();
             Instant creationTime = Instant.now();
             Verification savedVerification = verificationRepository.save(new Verification(code, user, creationTime));
-            log.warn("REGISTRATION: VerificationService.frontSideVerify(user: {}) - new code created: {} - isReset: {}", user.getUsername(), savedVerification.getCode(), isReset);
+            log.warn("VERIFICATION: VerificationService.verificationCodeGenerator(user: {}) - new code created: {} - isReset: {}", user.getUsername(), savedVerification.getCode(), isReset);
             emailService.sendEmail(user.getUsername(), savedVerification.getCode(), isReset);
         } else { // this user has not registered their account yet - just drop the call
-            log.warn("REGISTRATION: VerificationService.frontSideVerify(user: {}) - Invalid email", user.getUsername());
+            log.warn("VERIFICATION: VerificationService.verificationCodeGenerator(user: {}) - Invalid email", user.getUsername());
         }
     }
 

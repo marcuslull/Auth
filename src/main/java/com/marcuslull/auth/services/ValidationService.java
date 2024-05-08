@@ -18,37 +18,32 @@ public class ValidationService {
     private final UserRepository userRepository;
 
     public ValidationService(UserRepository userRepository) {
+        log.info("START: ValidationService");
         this.userRepository = userRepository;
     }
 
     public Map<String, String> validateRegistration(Registration registration) {
-
-        // response will contain a "message" and an HTML "page"
         Map<String, String> returnMap = new HashMap<>();
-
         if (requiredFieldsAreNotBlank(registration)) {
-            log.warn("REGISTRATION: RegistrationService.registrationProcess(email: {}, password: [PROTECTED]) - Required field is blank", registration.email());
+            log.warn("VALIDATION: ValidationService.validateRegistration(email: {}, password: [PROTECTED]) - Required field is blank", registration.email());
             returnMap.put("message", "Required field is blank!");
             returnMap.put("page", "register");
             return returnMap;
         }
-
         if (passwordsDontMatch(registration)) {
-            log.warn("REGISTRATION: RegistrationService.registrationProcess(email: {}, password: [PROTECTED]) - Passwords must match", registration.email());
+            log.warn("VALIDATION: ValidationService.validateRegistration(email: {}, password: [PROTECTED]) - Passwords must match", registration.email());
             returnMap.put("message", "Passwords must match!");
             returnMap.put("page", "register");
             return returnMap;
         }
-
         if (passwordIsNotStrong(registration)) {
-            log.warn("REGISTRATION: RegistrationService.registrationProcess(email: {}, password: [PROTECTED]) - password is not strong", registration.email());
+            log.warn("VALIDATION: ValidationService.validateRegistration(email: {}, password: [PROTECTED]) - password is not strong", registration.email());
             returnMap.put("message", "Password is not strong!");
             returnMap.put("page", "register");
             return returnMap;
         }
-
         if (userExists(registration)) {
-            log.warn("REGISTRATION: RegistrationService.registrationProcess(email: {}, password: [PROTECTED]) - user already exists", registration.email());
+            log.warn("VALIDATION: ValidationService.validateRegistration(email: {}, password: [PROTECTED]) - user already exists", registration.email());
             returnMap.put("message", "User already exists!");
             returnMap.put("page", "register");
             return returnMap;
@@ -57,17 +52,14 @@ public class ValidationService {
     }
 
     public Map<String, String> validatePasswordReset(Registration registration) {
-        // response will contain a "message"
         Map<String, String> returnMap = new HashMap<>();
-
         if (passwordsDontMatch(registration)) {
-            log.warn("REGISTRATION: RegistrationService.resetValidate() - Passwords must match");
+            log.warn("VALIDATION: ValidationService.validatePasswordReset() - Passwords must match");
             returnMap.put("message", "Passwords must match!");
             return returnMap;
         }
-
         if (passwordIsNotStrong(registration)) {
-            log.warn("REGISTRATION: RegistrationService.resetValidate() - password is not strong");
+            log.warn("VALIDATION: ValidationService.validatePasswordReset() - password is not strong");
             returnMap.put("message", "Password is not strong!");
             return returnMap;
         }

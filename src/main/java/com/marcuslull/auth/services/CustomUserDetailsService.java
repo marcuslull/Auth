@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("USER: CustomUserDetailsService.loadUserByUsername({})", username);
+        log.warn("USER: CustomUserDetailsService.loadUserByUsername({})", username);
         // Showing Spring how to get the user info from our custom implementation
         return userRepository.getUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
