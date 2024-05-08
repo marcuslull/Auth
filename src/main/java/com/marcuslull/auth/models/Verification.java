@@ -15,6 +15,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "verification")
 public class Verification {
+
     @Id
     @Column(name = "code", nullable = false, length = 50)
     private String code;

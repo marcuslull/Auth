@@ -26,22 +26,15 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
-        // the Exception thrown is handled by Spring Security and is used for auth events such as redirection
-
         log.info("START: SecurityConfiguration.baseFilter()");
-
-        // base security config for Spring Security
         http
-                // redirections for auth exceptions
                 .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
-
                 .authorizeHttpRequests(authorize -> authorize
                         // must be ordered by specificity
                         .requestMatchers("/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
                         .anyRequest().authenticated())
-
                 .formLogin(Customizer.withDefaults());
         return http.build();
     }
@@ -49,12 +42,9 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         log.info("START: SecurityConfiguration.authenticationManager()");
-        // Creating a required AuthenticationManger, ProviderManager, and AuthenticationProvider for Spring Security
-        // UserDetailsService will be our CustomUserDetailsService. PasswordEncoder will be the Argon2 Bean declared below
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // using the standard username/password authentication
         authenticationProvider.setUserDetailsService(userDetailsService); // using CustomUserDetailsService for the user details configuration
         authenticationProvider.setPasswordEncoder(passwordEncoder); // using argon2 password encoder below
-
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
         providerManager.setEraseCredentialsAfterAuthentication(false); // retaining the password for the session duration
         return providerManager;
@@ -63,9 +53,8 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         log.info("START: SecurityConfiguration.passwordEncoder");
-        // Argon2 encoder is a current best practice for password hashing
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
 //        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20); // TODO: Change before PROD
-        return new Argon2PasswordEncoder(16, 32, 1, 1 << 8, 1); // testing only
+        return new Argon2PasswordEncoder(0, 32, 1, 1 << 4, 1); // testing only
     }
 }

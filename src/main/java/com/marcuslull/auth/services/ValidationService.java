@@ -75,7 +75,6 @@ public class ValidationService {
         Instant now = Instant.now();
         Duration duration = Duration.between(created, now);
         return duration.getSeconds() <= 3600; // 1 hour expiration
-//        return duration.getSeconds() <= 10; // 10 seconds
     }
 
     private boolean requiredFieldsAreNotBlank(Registration registration) {

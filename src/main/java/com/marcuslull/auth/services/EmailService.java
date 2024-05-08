@@ -30,7 +30,6 @@ public class EmailService {
     private SimpleMailMessage getSimpleMailMessageProcessor(String to, String code, boolean isReset) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(to);
-
         String FROM = "mjlappsdemo@gmail.com";
         if (isReset) {
             log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building password reset email", to, code);
