@@ -86,7 +86,7 @@ public class ValidationService {
     }
 
     private boolean passwordIsNotStrong(Registration registration) {
-        String STRONG_PASSWORD_PATTERN = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,]){12,}.*";
+        String STRONG_PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,])(\\S){12,}$";
         return !Pattern.matches(STRONG_PASSWORD_PATTERN, registration.password().trim());
     }
 
