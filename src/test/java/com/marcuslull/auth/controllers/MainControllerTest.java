@@ -68,7 +68,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getResetWithNoRequestParamsTest() throws Exception {
+    void getResetWithNoCodeTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -79,7 +79,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getResetWithRequestParamsTest() throws Exception {
+    void getResetWithCodeTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("code", "randomUUID"))
@@ -87,6 +87,19 @@ class MainControllerTest {
                 .andExpect(view().name("reset"))
                 .andExpect(model().attribute("isGet",false))
                 .andExpect(model().attribute("code","randomUUID"));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void getResetWithReVerifyTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/reset")
+                        .with(csrf())
+                        .queryParam("reVerify", "true"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("reset"))
+                .andExpect(model().attribute("isVerify", true))
+                .andExpect(model().attribute("isGet",true))
+                .andExpect(model().attribute("message",""));
     }
 
     @Test
@@ -119,6 +132,22 @@ class MainControllerTest {
                 .andExpect(model().attribute("message","Success - please login."));
 
         verify(validationService, atLeastOnce()).validatePasswordReset(any(Registration.class));
+        verify(verificationService, atLeastOnce()).verificationCodeProcessor(anyString(), any(Registration.class));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void postResetWithReVerifyTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/reset")
+                        .with(csrf())
+                        .param("password", "email@email.com")
+                        .param("isReset", "false"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("reset"))
+                .andExpect(model().attribute("isVerify",false))
+                .andExpect(model().attribute("isGet",true))
+                .andExpect(model().attribute("message","Please check your email for a new verification link."));
+
         verify(verificationService, atLeastOnce()).verificationCodeProcessor(anyString(), any(Registration.class));
     }
 

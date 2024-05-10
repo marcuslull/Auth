@@ -59,16 +59,24 @@ public class MainController {
     }
 
     @GetMapping("/reset")
-    public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
+    public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, @RequestParam(name = "reVerify", defaultValue = "false", required = false) boolean reVerify, Model model) {
         log.warn("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        if (reVerify) {
+            log.warn("REQUEST: MainController.getReset() - ReVerification {} {}", request.getRemoteAddr(), request.getRemotePort());
+            model.addAttribute("isVerify", true);
+            model.addAttribute("isGet", true); // the view needs to know where we are at in the process
+            model.addAttribute("message", "");
+        }
         // This begins the password reset flow (GET /reset > POST /reset(email) > GET /reset(resetCode) > POST /reset(resetCode, new credentials))
-        if (code == null) { // first GET - resetCode should not be present
+        else if (code == null) { // first GET - resetCode should not be present
             log.warn("REQUEST: MainController.getReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            model.addAttribute("isVerify", false);
             model.addAttribute("isGet", true); // the view needs to know where we are at in the process
             model.addAttribute("message", "");
         }
         else { // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
             log.warn("REQUEST: MainController.getReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            model.addAttribute("isVerify", false);
             model.addAttribute("isGet", false);
             model.addAttribute("code", code);
         }
@@ -79,22 +87,34 @@ public class MainController {
     public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
         log.warn("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         Map<String, String> returnMap;
-        if (code == null) { // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
+        if (!registration.isReset()) { // this is for lost/new account verification links
+            log.warn("REQUEST: MainController.postReset() - Attempting to re-verify on user: {}", registration.email());
+            verificationService.verificationCodeProcessor("", registration);
+            model.addAttribute("isVerify", false);
+            model.addAttribute("isGet", true);
+            model.addAttribute("message", "Please check your email for a new verification link.");
+            return "reset";
+        }
+        else if (code == null) { // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
             log.warn("REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
             log.warn("REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             returnMap = registrationService.registerNewPassword(registration); // service layer can respond with email validity messages
+            model.addAttribute("isVerify", false);
             model.addAttribute("isGet", true);
             model.addAttribute("message", returnMap.get("message"));
+            return "reset";
         }
         else { // second POST, user has entered new credentials. Need hand-off to service layer for credential validation and the update
             log.warn("REQUEST: MainController.postReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             returnMap = validationService.validatePasswordReset(registration);
             if (returnMap.containsKey("message")) { // any password validity issues are returned to the view here
                 model.addAttribute("message", returnMap.get("message"));
+                model.addAttribute("isVerify", false);
                 return "reset";
             }
             if (verificationService.verificationCodeProcessor(code, registration)) {
                 model.addAttribute("message", "Success - please login.");
+                model.addAttribute("isVerify", false);
                 return "reset";
             }
             model.addAttribute("isGet", true);
