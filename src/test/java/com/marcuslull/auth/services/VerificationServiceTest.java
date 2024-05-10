@@ -38,7 +38,26 @@ class VerificationServiceTest {
     private VerificationService verificationService;
 
     @Test
-    void verificationProcessorPasswordResetTest() {
+    void verificationCodeProcessorNewCodeTest() {
+        Registration registration = new Registration("email", "", "", "", false);
+        User newCodeUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
+        when(userRepository.getUserByUsername(anyString())).thenReturn(Optional.of(newCodeUser));
+        doNothing().when(verificationRepository).deleteAllById(any(User.class));
+        when(validationService.emailIsWellFormed(any(User.class))).thenReturn(true);
+        when(verificationRepository.save(any(Verification.class))).thenReturn(new Verification());
+        lenient().doNothing().when(emailService).sendEmail(anyString(), anyString(), anyBoolean()); // I have no access to the UUID so must use lenient
+
+        boolean result = verificationService.verificationCodeProcessor("", registration);
+
+        verify(userRepository, atLeastOnce()).getUserByUsername(anyString());
+        verify(verificationRepository, atLeastOnce()).deleteAllById(any(User.class));
+        verify(verificationRepository, atLeastOnce()).save(any(Verification.class));
+        verify(emailService, atLeastOnce()).sendEmail("email", null, false);
+        assertTrue(result);
+    }
+
+    @Test
+    void verificationCodeProcessorPasswordResetTest() {
         Registration resetRegistration = new Registration("", "password", "password", "", true);
         User resetUser = new User(1L, "email", "password", true, List.of(new SimpleGrantedAuthority("USER")));
         Verification resetVerification = new Verification("randomUUID", resetUser, Instant.now());
@@ -58,7 +77,7 @@ class VerificationServiceTest {
     }
 
     @Test
-    void verificationProcessorNewRegistrationTest() {
+    void verificationCodeProcessorNewRegistrationTest() {
         Registration newRegistration = new Registration("", "password", "password", "", false);
         User newUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
         Verification newVerification = new Verification("randomUUID", newUser, Instant.now());
@@ -76,7 +95,7 @@ class VerificationServiceTest {
     }
 
     @Test
-    void verificationProcessorExpiredCodeTest() {
+    void verificationCodeProcessorExpiredCodeTest() {
         Registration newRegistration = new Registration("", "password", "password", "", false);
         User newUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
         Verification expiredVerification = new Verification("randomUUID", newUser, Instant.now());

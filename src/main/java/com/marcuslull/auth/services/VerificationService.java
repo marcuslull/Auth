@@ -36,10 +36,24 @@ public class VerificationService {
 
     @Transactional
     public boolean verificationCodeProcessor(String code, Registration registration) {
-        // this orchestrates three branches for verification codes - password reset, account registration, handle expired codes
+        // this orchestrates four branches for verification codes - new code, password reset code, account registration code, handle expired codes
+        if (code.isEmpty()) { // this branch is for new/lost codes
+            User user = verificationUserGetterByUsername(registration.email());
+            if (user != null) {
+                if (user.isEnabled()) {
+                    log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - User is already verified - dropping the call", code);
+                    return false;
+                } else {
+                    log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - Email verified, user: {} sending new verification code, removing obsolete verification records", code, user.getUsername());
+                    verificationRepository.deleteAllById(user); // remove all previous codes for the user
+                    verificationCodeGenerator(user, false);
+                    return true;
+                }
+            }
+        }
         Verification verification = verificationEntryGetter(code);
         if (verification != null) {
-            User user = verificationUserGetter(verification.getId().getId());
+            User user = verificationUserGetterById(verification.getId().getId());
             if (validationService.codeIsNotExpired(verification.getCreated())) {
                 if (user != null) {
                     if (registration.isReset()) { // this branch is for password resets
@@ -68,7 +82,7 @@ public class VerificationService {
                 return true;
             }
         }
-        log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - Verification not found - dropping the call", code);
+        log.warn("VERIFICATION: VerificationService.verificationCodeProcessor(code: {}) - User or verification not found - dropping the call", code);
         return false;
     }
 
@@ -85,7 +99,12 @@ public class VerificationService {
         }
     }
 
-    private User verificationUserGetter(Long id) {
+    private User verificationUserGetterByUsername(String username) {
+        Optional<User> optionalUser = userRepository.getUserByUsername(username);
+        return optionalUser.orElse(null);
+    }
+
+    private User verificationUserGetterById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.orElse(null);
     }
