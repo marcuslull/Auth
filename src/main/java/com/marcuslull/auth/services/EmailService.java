@@ -16,24 +16,38 @@ public class EmailService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendEmailVerification(String to, String link) {
-        final String FROM = "mjlappsdemo@gmail.com";
-        final String SUBJECT = "Email Verification from MJLApps";
-        final String BASE_TEXT = "Please click the following link to verify your email account. ";
-
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-
-        simpleMailMessage.setTo(to);
-        simpleMailMessage.setFrom(FROM);
-        simpleMailMessage.setSubject(SUBJECT);
-        simpleMailMessage.setText(BASE_TEXT + link);
-
+    public void sendEmail(String to, String code, boolean isReset) {
+        SimpleMailMessage simpleMailMessage = getSimpleMailMessageProcessor(to, code, isReset);
         try {
             javaMailSender.send(simpleMailMessage);
-            log.warn("REGISTRATION: EmailService.sendEmailVerification(email: {} link: {}) - Success, message sent", to, link);
+            log.warn("EMAIL: EmailService.sendEmail(email: {} link: {}) - Success, message sent", to, code);
         } catch (Exception e) {
-            log.warn("REGISTRATION: EmailService.sendEmailVerification(email: {} link: {}) - Failure, authentication or network error", to, link);
+            log.warn("EMAIL: EmailService.sendEmail(email: {} link: {}) - Failure, authentication or network error", to, code);
             throw new RuntimeException(e);
         }
+    }
+
+    private SimpleMailMessage getSimpleMailMessageProcessor(String to, String code, boolean isReset) {
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(to);
+        String FROM = "mjlappsdemo@gmail.com";
+        if (isReset) {
+            log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building password reset email", to, code);
+            simpleMailMessage.setFrom(FROM);
+            String RESET_SUBJECT = "Password reset from MJLApps";
+            simpleMailMessage.setSubject(RESET_SUBJECT);
+            String RESET_LINK = "http://localhost:8080/reset?code=";
+            String RESET_BASE_TEXT = "Please click the following link to reset your password: ";
+            simpleMailMessage.setText(RESET_BASE_TEXT + RESET_LINK + code);
+        } else {
+            log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building account register email", to, code);
+            simpleMailMessage.setFrom(FROM);
+            String VERIFY_SUBJECT = "Email Verification from MJLApps";
+            simpleMailMessage.setSubject(VERIFY_SUBJECT);
+            String VERIFY_LINK = "http://localhost:8080/verify?code=";
+            String VERIFY_BASE_TEXT = "Please click the following link to verify your email account: ";
+            simpleMailMessage.setText(VERIFY_BASE_TEXT + VERIFY_LINK + code);
+        }
+        return simpleMailMessage;
     }
 }

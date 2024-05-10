@@ -2,9 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Password Reset</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" integrity="sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56" crossorigin="anonymous"/>
 </head>
 <body>
-Reset page
+
+<div class="container">
+
+
+
+    <!--We need to keep perpetuating the code if it is present-->
+    <form th:if="${code} ? 'action=/reset?code=' + code : 'action=/reset'" class="form-signin" method="post">
+
+        <h2 class="form-signin-heading">Password Reset</h2>
+
+        <div th:if="${isGet}">
+            <p>
+                <label for="email" class="sr-only">Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
+            </p>
+        </div>
+
+        <div th:unless="${isGet}">
+            <p>
+                <label for="newPassword" class="sr-only">Password</label>
+                <input type="password" id="newPassword" name="password" pattern="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,]){12,}.*" class="form-control" placeholder="New Password" required>
+            </p>
+
+            <p>
+                <label for="confirmPassword" class="sr-only">Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm password" required>
+            </p>
+
+            <p class="small text-center"> Letters Numbers Uppercase Lowercase <br>Special @$!%*?&;, <br>12+ characters</p>
+            <input type="hidden" id="code" name="code" th:value="${code}" />
+        </div>
+
+        <p class="text-center text-success" th:text="${message}"></p>
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">
+            <input type="hidden" name="isReset" value=true />
+            Reset
+        </button>
+    </form>
+
+
+
+</div>
 </body>
 </html>
