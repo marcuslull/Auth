@@ -33,7 +33,7 @@ public class SecurityConfiguration {
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
                 .authorizeHttpRequests(authorize -> authorize
                         // must be ordered by specificity
-                        .requestMatchers("/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
+                        .requestMatchers("/images/**", "/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults());
         return http.build();

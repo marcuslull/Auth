@@ -1,0 +1,63 @@
+
+
+
+<!--TEMPLATE: HEADER - Above the body main container-->
+<div th:fragment="header">
+    <nav class="navbar bg-body-secondary mb-5">
+        <div class="container">
+            <div class="col-8">
+                <a class="navbar-brand" href="#">
+                    <img src="/favicon.ico" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
+                    <span class="fs-5 ms-3">MJL Apps</span>
+                </a>
+            </div>
+            <div class="col-4">
+                <div class="row justify-content-evenly">
+                    <a class="btn btn-outline-primary col-4" type="button" th:href="${isAnon} ? '/login' : '/logout'"
+                       th:text="${isAnon} ? 'Login' : 'Logout'"></a>
+                    <a class="btn btn-outline-primary col-4" type="button" th:href="@{/register}">Account Services</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+
+
+<!--TEMPLATE: TITLE - At the top of the body main container-->
+<div th:fragment="title">
+    <div class="row">
+        <div class="col-8">
+            <h3 class="mb-0">Open Authorization Service</h3>
+            <h6>With OpenID Connect</h6>
+        </div>
+        <div class="col-4 align-content-end">
+            <p class="text-end">An <a href="https://github.com/marcuslull/Auth">open source</a> project by Marcus Lull</p>
+        </div>
+    </div>
+    <hr class="mb-5">
+</div>
+
+
+
+<!--TEMPLATE: FOOTER - At the bottom of the body main container-->
+<div th:fragment="footer">
+    <hr class="mt-5">
+    <footer>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p>&copy; 2024 MJL Apps. All rights reserved.</p>
+                    <p>Open Source Project | <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="/images/apache.png" alt="Apache License Logo" height="27" width="66"></a>  </p>
+                    <small class="text-secondary">
+                        Licensed under the Apache License, Version 2.0 (the "License");
+                        you may not use this file except in compliance with the License.
+                        Unless required by applicable law or agreed to in writing, software
+                        distributed under the License is distributed on an "AS IS" BASIS,
+                        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                        See the License for the specific language governing permissions and
+                        limitations under the License.
+                    </small>
+                </div>
+            </div>
+    </footer>
+</div>
