@@ -42,7 +42,7 @@
             <input type="hidden" id="code" name="code" th:value="${code}" />
         </div>
 
-        <p class="text-success" th:text="${message}"></p>
+        <p th:class="${message == 'Success - please login.'} ? 'text-success' : 'text-danger'" th:text="${message}"></p>
 
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
