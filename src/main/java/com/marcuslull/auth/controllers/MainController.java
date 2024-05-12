@@ -40,14 +40,20 @@ public class MainController {
     }
 
     @GetMapping("/register")
-    public String getRegister(HttpServletRequest request) {
+    public String getRegister(HttpServletRequest request, Model model, Principal principal) {
         log.warn("REQUEST: MainController.getRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        if (principal == null) {
+            model.addAttribute("isAnon", true);
+        } else { model.addAttribute("isAnon", false); }
         return "register";
     }
 
     @PostMapping("/register")
-    public String postRegister(Registration registration, Model model, HttpServletRequest request) {
+    public String postRegister(Registration registration, Model model, HttpServletRequest request, Principal principal) {
         log.warn("REQUEST: MainController.postRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        if (principal == null) {
+            model.addAttribute("isAnon", true);
+        } else { model.addAttribute("isAnon", false); }
         Map<String, String> returnedMap = validationService.validateRegistration(registration);
         if (returnedMap.isEmpty()) {
             registrationService.registerNewUser(registration);
@@ -59,8 +65,10 @@ public class MainController {
     }
 
     @GetMapping("/reset")
-    public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, @RequestParam(name = "reVerify", defaultValue = "false", required = false) boolean reVerify, Model model) {
-        log.warn("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+    public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, @RequestParam(name = "reVerify", defaultValue = "false", required = false) boolean reVerify, Model model, Principal principal) {
+        log.warn("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());if (principal == null) {
+            model.addAttribute("isAnon", true);
+        } else { model.addAttribute("isAnon", false); }
         if (reVerify) {
             log.warn("REQUEST: MainController.getReset() - ReVerification {} {}", request.getRemoteAddr(), request.getRemotePort());
             model.addAttribute("isVerify", true);
@@ -84,8 +92,11 @@ public class MainController {
     }
 
     @PostMapping("/reset")
-    public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
+    public String postReset(HttpServletRequest request, Model model, Registration registration, String code, Principal principal) {
         log.warn("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        if (principal == null) {
+            model.addAttribute("isAnon", true);
+        } else { model.addAttribute("isAnon", false); }
         Map<String, String> returnMap;
         if (!registration.isReset()) { // this is for lost/new account verification links
             log.warn("REQUEST: MainController.postReset() - Attempting to re-verify on user: {}", registration.email());
@@ -123,9 +134,12 @@ public class MainController {
     }
 
     @GetMapping("/verify")
-    public String getVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
+    public String getVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model, Principal principal) {
         log.warn("REQUEST: MainController.getVerify() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         log.warn("REQUEST: MainController.getVerify() - Request parameter: code={}", code);
+        if (principal == null) {
+            model.addAttribute("isAnon", true);
+        } else { model.addAttribute("isAnon", false); }
         // need a registration record for processor logic
         Registration registration = new Registration(null,null,null,null, false);
         if (code == null) { // no code... what are they doing here?

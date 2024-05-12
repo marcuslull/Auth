@@ -3,52 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Please register</title>
+    <title>Register | Auth Service</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-
 </head>
-
 <body>
-
-
-<nav class="navbar bg-body-secondary mb-5">
+<div th:insert="fragments :: header"></div>
 <div class="container">
-    <div class="col-8">
-        <a class="navbar-brand" href="#">
-            <img src="/favicon.ico" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
-            <span class="fs-5 ms-3">MJL Apps</span>
-        </a>
-    </div>
+    <div th:insert="fragments :: title"></div>
 
-    <div class="col-4">
-        <div class="row justify-content-evenly">
-            <a class="btn btn-outline-primary col-4" type="button" th:href="${isAnon} ? '/login' : '/logout'"
-               th:text="${isAnon} ? 'Login' : 'Logout'"></a>
-            <a class="btn btn-outline-primary col-4" type="button" th:href="@{/register}">Account Services</a>
-        </div>
-    </div>
-</div>
-</nav>
-
-
-<div class="container">
-
-
-    <div class="row">
-        <div class="col-8">
-            <h3 class="mb-0">Open Authorization Service</h3>
-            <h6>With OpenID Connect</h6>
-        </div>
-        <div class="col-4 align-content-end">
-            <p class="text-end">An <a href="https://github.com/marcuslull/Auth">open source</a> project by Marcus Lull</p>
-        </div>
-    </div>
-
-
-
-    <hr class="mb-5">
 
 
 
@@ -79,10 +42,13 @@
         <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
     </form>
 
-
-
     <p class="small text-center"> <a href="/reset?reVerify=false">Reset Password</a></p>
     <p class="small text-center"> <a href="/reset?reVerify=true">Lost account verification link?</a></p>
+
+
+
+
+    <div th:insert="fragments :: footer"></div>
 </div>
 </body>
 </html>
