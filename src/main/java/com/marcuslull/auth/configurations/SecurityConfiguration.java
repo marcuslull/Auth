@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,9 +32,16 @@ public class SecurityConfiguration {
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
                 .authorizeHttpRequests(authorize -> authorize
                         // must be ordered by specificity
-                        .requestMatchers("/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
+                        .requestMatchers("/images/**", "/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults());
+                .formLogin(form -> form.loginPage("/login").permitAll()
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/")
+                        .usernameParameter("email")
+                        .passwordParameter("password"))
+                .logout(logout -> logout.logoutUrl("/logout")
+                        .logoutSuccessUrl("/success").permitAll()
+                        .deleteCookies("JSESSIONID"));
         return http.build();
     }
 
