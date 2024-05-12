@@ -8,9 +8,9 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div th:insert="fragments :: header"></div>
+<div th:insert="~{fragments :: header}"></div>
 <div class="container">
-    <div th:insert="fragments :: title"></div>
+    <div th:insert="~{fragments :: title}"></div>
 
 
 
@@ -42,7 +42,7 @@
 
 
 
-    <div th:insert="fragments :: footer"></div>
+    <div th:insert="~{fragments :: footer}"></div>
 </div>
 </body>
 </html>

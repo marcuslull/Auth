@@ -8,15 +8,16 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div th:insert="fragments :: header"></div>
+<div th:insert="~{fragments :: header}"></div>
 <div class="container">
-    <div th:insert="fragments :: title"></div>
+    <div th:insert="~{fragments :: title}"></div>
 
 
 
 
-    <form name='form-login' action="/login" method='POST'>
-        <h2>Login</h2>
+    <form class="col-md-offset-4 col-md-4" name='form-login' action="/login" method='POST'>
+        <h4>Login</h4>
+
         <p>
             <label for="email" class="sr-only">Email</label>
             <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
@@ -32,7 +33,7 @@
 
 
 
-    <div th:insert="fragments :: footer"></div>
+    <div th:insert="~{fragments :: footer}"></div>
 </div>
 </body>
 </html>

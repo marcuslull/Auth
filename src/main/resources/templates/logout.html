@@ -8,14 +8,15 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div th:insert="fragments :: header"></div>
+<div th:insert="~{fragments :: header}"></div>
 <div class="container">
-    <div th:insert="fragments :: title"></div>
+    <div th:insert="~{fragments :: title}"></div>
 
 
 
-    <form name='form-logout' action="/logout" method='POST'>
-        <h2>Logout</h2>
+
+    <form class="col-md-offset-4 col-md-4" name='form-logout' action="/logout" method='POST'>
+        <h4>Logout</h4>
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Logout</button>
     </form>
@@ -23,7 +24,7 @@
 
 
 
-    <div th:insert="fragments :: footer"></div>
+    <div th:insert="~{fragments :: footer}"></div>
 </div>
 </body>
 </html>

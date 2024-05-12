@@ -8,19 +8,19 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div th:insert="fragments :: header"></div>
+<div th:insert="~{fragments :: header}"></div>
 <div class="container">
-    <div th:insert="fragments :: title"></div>
-
-
-
-    <h2 class="text-success">You are now logged out!</h2>
+    <div th:insert="~{fragments :: title}"></div>
 
 
 
 
+    <h4 class="col-md-offset-4 col-md-4 text-success">You are now logged out!</h4>
 
-    <div th:insert="fragments :: footer"></div>
+
+
+
+    <div th:insert="~{fragments :: footer}"></div>
 </div>
 </body>
 </html>

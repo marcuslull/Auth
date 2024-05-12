@@ -8,27 +8,27 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div th:insert="fragments :: header"></div>
+<div th:insert="~{fragments :: header}"></div>
 <div class="container">
-    <div th:insert="fragments :: title"></div>
+    <div th:insert="~{fragments :: title}"></div>
 
 
 
+    <div class="col-md-offset-4 col-md-4">
+        <div th:if="${isSuccess}" class="text-center">
+            <h4 class="text-success mb-5">Email confirmed - please log in to continue</h4>
+            <a class="btn btn-outline-primary" type="button" href="/login">Login</a>
+        </div>
 
-    <div th:if="${isSuccess}" class="text-center">
-        <h4 class="text-center text-success mb-5">Email confirmed - please log in to continue</h4>
-        <a class="btn btn-outline-primary" type="button" href="/login">Login</a>
+        <div th:unless="${isSuccess}">
+            <h4 class="text-danger mb-5">Validation link expired - please check your email for a new one</h4>
+            <p>If the issue persists, please re-register your account</p>
+        </div>
     </div>
 
-    <div th:unless="${isSuccess}"  class="text-center">
-        <h4 class="text-center text-danger mb-5">Validation link expired - please check your email for a new one</h4>
-        <p>If the issue persists, please re-register your account</p>
-    </div>
 
 
-
-
-    <div th:insert="fragments :: footer"></div>
+    <div th:insert="~{fragments :: footer}"></div>
 </div>
 </body>
 </html>
