@@ -12,7 +12,6 @@ import org.springframework.security.authorization.event.AuthorizationGrantedEven
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 @Configuration
 public class AuthorizationEvent {
 
