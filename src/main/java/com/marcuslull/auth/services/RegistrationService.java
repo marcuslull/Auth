@@ -16,6 +16,8 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class RegistrationService {
+    public static final SimpleGrantedAuthority USER = new SimpleGrantedAuthority("USER");
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationService verificationService;
@@ -35,7 +37,7 @@ public class RegistrationService {
         user.setUsername(registration.email());
         user.setPassword(passwordEncoder.encode(registration.password()));
         user.setEnabled(false);
-        user.setGrantedAuthority(Collections.singletonList(new SimpleGrantedAuthority("USER")));
+        user.setGrantedAuthority(Collections.singletonList(USER));
         User savedUser = userRepository.save(user);
         log.warn("REGISTRATION: RegistrationService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
         verificationService.verificationCodeGenerator(savedUser, false);
