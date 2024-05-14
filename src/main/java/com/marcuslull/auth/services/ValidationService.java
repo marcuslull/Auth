@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 public class ValidationService {
+    public static final String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+    public static final String STRONG_PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,])(\\S){12,}$";
+
     private final UserRepository userRepository;
 
     public ValidationService(UserRepository userRepository) {
@@ -67,7 +70,6 @@ public class ValidationService {
     }
 
     public boolean emailIsWellFormed(User user) {
-        String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
         return Pattern.matches(EMAIL_VERIFICATION_PATTERN, user.getUsername().trim());
     }
 
@@ -86,7 +88,6 @@ public class ValidationService {
     }
 
     private boolean passwordIsNotStrong(Registration registration) {
-        String STRONG_PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,])(\\S){12,}$";
         return !Pattern.matches(STRONG_PASSWORD_PATTERN, registration.password().trim());
     }
 
