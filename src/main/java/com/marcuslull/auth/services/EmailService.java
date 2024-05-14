@@ -9,6 +9,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
+    public static final String FROM = "mjlappsdemo@gmail.com";
+    public static final String RESET_SUBJECT = "Password reset from MJLApps";
+    public static final String RESET_LINK = "http://localhost:8080/reset?code=";
+    public static final String RESET_BASE_TEXT = "Please click the following link to reset your password: ";
+    public static final String VERIFY_SUBJECT = "Email Verification from MJLApps";
+    public static final String VERIFY_LINK = "http://localhost:8080/verify?code=";
+    public static final String VERIFY_BASE_TEXT = "Please click the following link to verify your email account: ";
+
     private final JavaMailSender javaMailSender;
 
     public EmailService(JavaMailSender javaMailSender) {
@@ -30,22 +38,15 @@ public class EmailService {
     private SimpleMailMessage getSimpleMailMessageProcessor(String to, String code, boolean isReset) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(to);
-        String FROM = "mjlappsdemo@gmail.com";
         if (isReset) {
             log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building password reset email", to, code);
             simpleMailMessage.setFrom(FROM);
-            String RESET_SUBJECT = "Password reset from MJLApps";
             simpleMailMessage.setSubject(RESET_SUBJECT);
-            String RESET_LINK = "http://localhost:8080/reset?code=";
-            String RESET_BASE_TEXT = "Please click the following link to reset your password: ";
             simpleMailMessage.setText(RESET_BASE_TEXT + RESET_LINK + code);
         } else {
             log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building account register email", to, code);
             simpleMailMessage.setFrom(FROM);
-            String VERIFY_SUBJECT = "Email Verification from MJLApps";
             simpleMailMessage.setSubject(VERIFY_SUBJECT);
-            String VERIFY_LINK = "http://localhost:8080/verify?code=";
-            String VERIFY_BASE_TEXT = "Please click the following link to verify your email account: ";
             simpleMailMessage.setText(VERIFY_BASE_TEXT + VERIFY_LINK + code);
         }
         return simpleMailMessage;
