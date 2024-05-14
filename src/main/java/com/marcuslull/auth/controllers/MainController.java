@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -30,30 +31,26 @@ public class MainController {
         log.info("START: MainController");
     }
 
+    @ModelAttribute("isAnon")
+    public void isAnon(Principal principal, Model model) {
+        model.addAttribute("isAnon", principal == null);
+    }
+
     @GetMapping("/")
-    public String getIndex(HttpServletRequest request, Model model, Principal principal) {
+    public String displayIndex(HttpServletRequest request) {
         log.warn("REQUEST: MainController.getIndex() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         return "index";
     }
 
     @GetMapping("/register")
-    public String getRegister(HttpServletRequest request, Model model, Principal principal) {
+    public String displayRegister(HttpServletRequest request) {
         log.warn("REQUEST: MainController.getRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         return "register";
     }
 
     @PostMapping("/register")
-    public String postRegister(Registration registration, Model model, HttpServletRequest request, Principal principal) {
+    public String postRegister(Registration registration, Model model, HttpServletRequest request) {
         log.warn("REQUEST: MainController.postRegister() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         Map<String, String> returnedMap = validationService.validateRegistration(registration);
         if (returnedMap.isEmpty()) {
             registrationService.registerNewUser(registration);
@@ -64,17 +61,20 @@ public class MainController {
         return returnedMap.get("page");
     }
 
+    // TODO: The logic here needs to in the service layer to simplify the controller method
     @GetMapping("/reset")
-    public String getReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, @RequestParam(name = "reVerify", defaultValue = "false", required = false) boolean reVerify, Model model, Principal principal) {
-        log.warn("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
+    public String displayReset(HttpServletRequest request, @RequestParam(name = "code", required = false) String code,
+                               @RequestParam(name = "reVerify", defaultValue = "false", required = false) boolean reVerify,
+                               Model model) {
+        log.warn("REQUEST: MainController.getReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+
         if (reVerify) {
             log.warn("REQUEST: MainController.getReset() - ReVerification {} {}", request.getRemoteAddr(), request.getRemotePort());
             model.addAttribute("isVerify", true);
             model.addAttribute("isGet", true); // the view needs to know where we are at in the process
             model.addAttribute("message", "");
         }
+
         // This begins the password reset flow (GET /reset > POST /reset(email) > GET /reset(resetCode) > POST /reset(resetCode, new credentials))
         else if (code == null) { // first GET - resetCode should not be present
             log.warn("REQUEST: MainController.getReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
@@ -82,21 +82,22 @@ public class MainController {
             model.addAttribute("isGet", true); // the view needs to know where we are at in the process
             model.addAttribute("message", "");
         }
+
         else { // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
             log.warn("REQUEST: MainController.getReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             model.addAttribute("isVerify", false);
             model.addAttribute("isGet", false);
             model.addAttribute("code", code);
         }
+
         return "reset";
     }
 
+    // TODO: The logic here needs to in the service layer to simplify the controller method
     @PostMapping("/reset")
-    public String postReset(HttpServletRequest request, Model model, Registration registration, String code, Principal principal) {
+    public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
         log.warn("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
+
         Map<String, String> returnMap;
         if (!registration.isReset()) { // this is for lost/new account verification links
             log.warn("REQUEST: MainController.postReset() - Attempting to re-verify on user: {}", registration.email());
@@ -106,6 +107,7 @@ public class MainController {
             model.addAttribute("message", "Please check your email for a new verification link.");
             return "reset";
         }
+
         else if (code == null) { // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
             log.warn("REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
             log.warn("REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
@@ -115,6 +117,7 @@ public class MainController {
             model.addAttribute("message", returnMap.get("message"));
             return "reset";
         }
+
         else { // second POST, user has entered new credentials. Need hand-off to service layer for credential validation and the update
             log.warn("REQUEST: MainController.postReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             returnMap = validationService.validatePasswordReset(registration);
@@ -130,16 +133,14 @@ public class MainController {
             }
             model.addAttribute("isGet", true);
         }
+
         return "reset";
     }
 
     @GetMapping("/verify")
-    public String getVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model, Principal principal) {
+    public String displayVerify(HttpServletRequest request, @RequestParam(name = "code", required = false) String code, Model model) {
         log.warn("REQUEST: MainController.getVerify() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         log.warn("REQUEST: MainController.getVerify() - Request parameter: code={}", code);
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         // need a registration record for processor logic
         Registration registration = new Registration(null,null,null,null, false);
         if (code == null) { // no code... what are they doing here?

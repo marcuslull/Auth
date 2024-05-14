@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.security.Principal;
@@ -13,38 +14,36 @@ import java.security.Principal;
 @Controller
 public class AuthenticationController {
 
+    @ModelAttribute("isAnon")
+    public void isAnon(Principal principal, Model model) {
+        model.addAttribute("isAnon", principal == null);
+    }
+
     @GetMapping("/login")
-    public String getLogin(HttpServletRequest request, Model model, Principal principal) {
+    public String displayLogin(HttpServletRequest request) {
         log.warn("REQUEST: AuthenticationController.getLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         return "login";
     }
 
     @PostMapping("/login")
     public void postLogin() {
+        // logic is handled by Spring Security via SecurityConfiguration
     }
 
     @GetMapping("/logout")
-    public String getLogout(HttpServletRequest request, Model model, Principal principal) {
+    public String displayLogout(HttpServletRequest request) {
         log.warn("REQUEST: AuthenticationController.getLogout() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         return "logout";
     }
 
     @PostMapping("/logout")
     public void postLogout() {
+        // logic is handled by Spring Security via SecurityConfiguration
     }
 
     @GetMapping("/success")
-    public String getSuccess(HttpServletRequest request, Model model, Principal principal) {
+    public String displaySuccess(HttpServletRequest request) {
         log.warn("REQUEST: AuthenticationController.getSuccess() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        if (principal == null) {
-            model.addAttribute("isAnon", true);
-        } else { model.addAttribute("isAnon", false); }
         return "success";
     }
 }
