@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class ValidationService {
     public static final String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
     public static final String STRONG_PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,])(\\S){12,}$";
+    public static final int EXPIRATION_TIME_IN_SECONDS = 3600;
 
     private final UserRepository userRepository;
 
@@ -76,7 +77,7 @@ public class ValidationService {
     public boolean codeIsNotExpired(Instant created){
         Instant now = Instant.now();
         Duration duration = Duration.between(created, now);
-        return duration.getSeconds() <= 3600; // 1 hour expiration
+        return duration.getSeconds() <= EXPIRATION_TIME_IN_SECONDS; // 1 hour expiration
     }
 
     private boolean requiredFieldsAreNotBlank(Registration registration) {
