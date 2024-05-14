@@ -34,7 +34,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getIndex() throws Exception {
+    void displayIndex() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"));
@@ -42,7 +42,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getRegisterTest() throws Exception {
+    void displayRegisterTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/register")
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -68,7 +68,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getResetWithNoCodeTest() throws Exception {
+    void displayResetWithNoCodeTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -79,7 +79,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getResetWithCodeTest() throws Exception {
+    void displayResetWithCodeTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("code", "randomUUID"))
@@ -91,7 +91,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getResetWithReVerifyTest() throws Exception {
+    void displayResetWithReVerifyTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("reVerify", "true"))
@@ -153,7 +153,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getVerifyWithRequestParamsTest() throws Exception {
+    void displayVerifyWithRequestParamsTest() throws Exception {
         when(verificationService.verificationCodeProcessor(anyString(), any(Registration.class))).thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/verify")
@@ -167,7 +167,7 @@ class MainControllerTest {
 
     @Test
     @WithAnonymousUser
-    void getVerifyWithNoRequestParamsTest() throws Exception {
+    void displayVerifyWithNoRequestParamsTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/verify"))
                 .andExpect(view().name("index"));
     }

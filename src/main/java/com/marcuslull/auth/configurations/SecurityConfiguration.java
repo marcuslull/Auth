@@ -30,18 +30,22 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
+
                 .authorizeHttpRequests(authorize -> authorize
                         // must be ordered by specificity
                         .requestMatchers("/images/**", "/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
                         .anyRequest().authenticated())
+
                 .formLogin(form -> form.loginPage("/login").permitAll()
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
                         .usernameParameter("email")
                         .passwordParameter("password"))
+
                 .logout(logout -> logout.logoutUrl("/logout")
                         .logoutSuccessUrl("/success").permitAll()
                         .deleteCookies("JSESSIONID"));
+
         return http.build();
     }
 
@@ -52,7 +56,7 @@ public class SecurityConfiguration {
         authenticationProvider.setUserDetailsService(userDetailsService); // using CustomUserDetailsService for the user details configuration
         authenticationProvider.setPasswordEncoder(passwordEncoder); // using argon2 password encoder below
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
-        providerManager.setEraseCredentialsAfterAuthentication(false); // retaining the password for the session duration
+        providerManager.setEraseCredentialsAfterAuthentication(true); // clearing password from mem
         return providerManager;
     }
 
@@ -60,7 +64,7 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         log.info("START: SecurityConfiguration.passwordEncoder");
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
-//        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20); // TODO: Change before PROD
-        return new Argon2PasswordEncoder(0, 32, 1, 1 << 4, 1); // testing only
+        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20);
+//        return new Argon2PasswordEncoder(0, 32, 1, 1 << 4, 1); // testing only
     }
 }

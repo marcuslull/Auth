@@ -15,6 +15,10 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 public class ValidationService {
+    public static final String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+    public static final String STRONG_PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,])(\\S){12,}$";
+    public static final int EXPIRATION_TIME_IN_SECONDS = 3600;
+
     private final UserRepository userRepository;
 
     public ValidationService(UserRepository userRepository) {
@@ -67,14 +71,13 @@ public class ValidationService {
     }
 
     public boolean emailIsWellFormed(User user) {
-        String EMAIL_VERIFICATION_PATTERN = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
         return Pattern.matches(EMAIL_VERIFICATION_PATTERN, user.getUsername().trim());
     }
 
     public boolean codeIsNotExpired(Instant created){
         Instant now = Instant.now();
         Duration duration = Duration.between(created, now);
-        return duration.getSeconds() <= 3600; // 1 hour expiration
+        return duration.getSeconds() <= EXPIRATION_TIME_IN_SECONDS; // 1 hour expiration
     }
 
     private boolean requiredFieldsAreNotBlank(Registration registration) {
@@ -86,7 +89,6 @@ public class ValidationService {
     }
 
     private boolean passwordIsNotStrong(Registration registration) {
-        String STRONG_PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&;,])(\\S){12,}$";
         return !Pattern.matches(STRONG_PASSWORD_PATTERN, registration.password().trim());
     }
 

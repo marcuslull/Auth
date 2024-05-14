@@ -12,7 +12,6 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 @Configuration
 public class AuthenticationEvent {
 
