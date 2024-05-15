@@ -11,10 +11,12 @@ public class EmailService {
 
     public static final String FROM = "mjlappsdemo@gmail.com";
     public static final String RESET_SUBJECT = "Password reset from MJLApps";
-    public static final String RESET_LINK = "http://localhost:8080/reset?code=";
+//    public static final String LINK_BASE = "http://localhost:8080";
+    public static final String LINK_BASE = "https://auth.marcuslull.com";
+    public static final String RESET_LINK = LINK_BASE + "/reset?code=";
     public static final String RESET_BASE_TEXT = "Please click the following link to reset your password: ";
     public static final String VERIFY_SUBJECT = "Email Verification from MJLApps";
-    public static final String VERIFY_LINK = "http://localhost:8080/verify?code=";
+    public static final String VERIFY_LINK = LINK_BASE + "/verify?code=";
     public static final String VERIFY_BASE_TEXT = "Please click the following link to verify your email account: ";
 
     private final JavaMailSender javaMailSender;
