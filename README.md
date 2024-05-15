@@ -21,6 +21,7 @@ ___
     * spring-security-test
     * spring-boot-starter-thymeleaf
     * spring-boot-starter-mail
+    * spring-cloud-gcp-starter-sql-postgresql
 * Postgresql
 * Project Lombok
 * BouncyCastle bcprov-jdk18on (1.78.1)
