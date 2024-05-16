@@ -40,7 +40,8 @@ public class SecurityConfiguration {
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
                         .usernameParameter("email")
-                        .passwordParameter("password"))
+                        .passwordParameter("password")
+                        .failureUrl("/login?error")) // pass the error back to /login as a param
 
                 .logout(logout -> logout.logoutUrl("/logout")
                         .logoutSuccessUrl("/success").permitAll()

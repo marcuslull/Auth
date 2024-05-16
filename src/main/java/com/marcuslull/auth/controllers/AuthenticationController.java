@@ -21,12 +21,14 @@ public class AuthenticationController {
 
     @GetMapping("/login")
     public String displayLogin(HttpServletRequest request) {
-        log.warn("REQUEST: AuthenticationController.getLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        log.warn("REQUEST: AuthenticationController.displayLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        // logic is handled by Spring Security via SecurityConfiguration
         return "login";
     }
 
     @PostMapping("/login")
-    public void postLogin() {
+    public void postLogin(HttpServletRequest request) {
+        log.warn("REQUEST: AuthenticationController.postLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         // logic is handled by Spring Security via SecurityConfiguration
     }
 
