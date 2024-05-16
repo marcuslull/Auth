@@ -1,4 +1,3 @@
-[![CodeQL](https://github.com/marcuslull/Auth/actions/workflows/codeql.yml/badge.svg)](https://github.com/marcuslull/Auth/actions/workflows/codeql.yml)
 [![Java CI with Maven](https://github.com/marcuslull/Auth/actions/workflows/maven.yml/badge.svg?branch=dev)](https://github.com/marcuslull/Auth/actions/workflows/maven.yml)
 
 # Auth Service
