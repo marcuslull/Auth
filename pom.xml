@@ -15,7 +15,7 @@
     <description>Auth</description>
     <properties>
         <java.version>21</java.version>
-        <spring-cloud-gcp.version>5.1.2</spring-cloud-gcp.version>
+        <spring-cloud-gcp.version>5.2.1</spring-cloud-gcp.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -81,10 +81,6 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.cloud.sql</groupId>
-            <artifactId>postgres-socket-factory</artifactId>
         </dependency>
     </dependencies>
 
