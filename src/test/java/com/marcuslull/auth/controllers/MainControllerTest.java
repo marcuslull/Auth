@@ -2,6 +2,7 @@ package com.marcuslull.auth.controllers;
 
 
 import com.marcuslull.auth.models.Registration;
+import com.marcuslull.auth.models.Verification;
 import com.marcuslull.auth.services.LogoutService;
 import com.marcuslull.auth.services.RegistrationService;
 import com.marcuslull.auth.services.ValidationService;
@@ -86,6 +87,7 @@ class MainControllerTest {
     @Test
     @WithAnonymousUser
     void displayResetWithCodeTest() throws Exception {
+        when(verificationService.verificationEntryGetter(anyString())).thenReturn(new Verification());
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("code", "randomUUID"))
@@ -93,6 +95,17 @@ class MainControllerTest {
                 .andExpect(view().name("reset"))
                 .andExpect(model().attribute("isGet",false))
                 .andExpect(model().attribute("code","randomUUID"));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void displayResetWithUsedCodeTest() throws Exception {
+        when(verificationService.verificationEntryGetter(anyString())).thenReturn(null);
+        mockMvc.perform(MockMvcRequestBuilders.get("/reset")
+                        .with(csrf())
+                        .queryParam("code", "randomUUID"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
     }
 
     @Test
