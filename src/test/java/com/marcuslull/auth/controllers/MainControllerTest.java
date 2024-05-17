@@ -2,14 +2,18 @@ package com.marcuslull.auth.controllers;
 
 
 import com.marcuslull.auth.models.Registration;
+import com.marcuslull.auth.services.LogoutService;
 import com.marcuslull.auth.services.RegistrationService;
 import com.marcuslull.auth.services.ValidationService;
 import com.marcuslull.auth.services.VerificationService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,6 +35,8 @@ class MainControllerTest {
     private VerificationService verificationService;
     @MockBean
     private ValidationService validationService;
+    @MockBean
+    private LogoutService logoutService;
 
     @Test
     @WithAnonymousUser
@@ -133,6 +139,7 @@ class MainControllerTest {
 
         verify(validationService, atLeastOnce()).validatePasswordReset(any(Registration.class));
         verify(verificationService, atLeastOnce()).verificationCodeProcessor(anyString(), any(Registration.class));
+        verify(logoutService, atLeastOnce()).logout(any(HttpServletRequest.class), any(HttpServletResponse.class), nullable(Authentication.class));
     }
 
     @Test

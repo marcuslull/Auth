@@ -1,11 +1,15 @@
 package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
+import com.marcuslull.auth.services.LogoutService;
 import com.marcuslull.auth.services.RegistrationService;
 import com.marcuslull.auth.services.ValidationService;
 import com.marcuslull.auth.services.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +27,13 @@ public class MainController {
     private final RegistrationService registrationService;
     private final VerificationService verificationService;
     private final ValidationService validationService;
+    private final LogoutService logoutService;
 
-    public MainController(RegistrationService registrationService, VerificationService verificationService, ValidationService validationService) {
+    public MainController(RegistrationService registrationService, VerificationService verificationService, ValidationService validationService, LogoutService logoutService) {
         this.registrationService = registrationService;
         this.verificationService = verificationService;
         this.validationService = validationService;
+        this.logoutService = logoutService;
         log.info("START: MainController");
     }
 
@@ -95,7 +101,8 @@ public class MainController {
 
     // TODO: The logic here needs to in the service layer to simplify the controller method
     @PostMapping("/reset")
-    public String postReset(HttpServletRequest request, Model model, Registration registration, String code) {
+    public String postReset(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
+                            Model model, Registration registration, String code) {
         log.warn("REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
 
         Map<String, String> returnMap;
@@ -127,6 +134,8 @@ public class MainController {
                 return "reset";
             }
             if (verificationService.verificationCodeProcessor(code, registration)) {
+                logoutService.logout(request, response, authentication);
+                model.addAttribute("isAnon", true);
                 model.addAttribute("message", "Success - please login.");
                 model.addAttribute("isVerify", false);
                 return "reset";
