@@ -23,11 +23,11 @@ public class AuthenticationEvent {
 
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent successEvent) {
-        log.warn("AUTH_EVENT: AuthenticationEvent.onSuccess({})", successEvent);
+        log.warn("AUTH_EVENT: AuthenticationEvent.onSuccess({} - {})", successEvent.getAuthentication().getName(), successEvent);
     }
 
     @EventListener
     public void onFailure(AbstractAuthenticationFailureEvent failureEvent) {
-        log.warn("AUTH_EVENT: AuthenticationEvent.onFailure({})", failureEvent);
+        log.warn("AUTH_EVENT: AuthenticationEvent.onFailure({} - {})", failureEvent.getAuthentication().getName(), failureEvent);
     }
 }
