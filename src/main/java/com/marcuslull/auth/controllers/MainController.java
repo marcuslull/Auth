@@ -90,6 +90,10 @@ public class MainController {
 
         else { // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
             log.warn("AUTH_REQUEST: MainController.getReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
+            if (verificationService.verificationEntryGetter(code) == null) {
+                log.warn("AUTH_REQUEST: MainController.getReset() - Used reset code, forwarding to /login");
+                return "redirect:/login";
+            }
             model.addAttribute("isVerify", false);
             model.addAttribute("isGet", false);
             model.addAttribute("code", code);

@@ -50,7 +50,7 @@ public class RegistrationService {
             User user = optionalUser.get();
             verificationService.verificationCodeGenerator(user, true);
             returnMap.put("message", "A password reset will be emailed to you soon");
-            log.warn("AUTH_REGISTRATION: RegistrationService.registerNewPassword({}) - Password updated", registration.email());
+            log.warn("AUTH_REGISTRATION: RegistrationService.registerNewPassword({}) - Waiting for user to click the link...", registration.email());
             return returnMap;
         }
         log.warn("AUTH_REGISTRATION: RegistrationService.registerNewPassword({}) - User was not found, dropping the call", registration.email());

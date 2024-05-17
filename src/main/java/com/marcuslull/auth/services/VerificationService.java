@@ -99,6 +99,13 @@ public class VerificationService {
         }
     }
 
+    public Verification verificationEntryGetter(String code) {
+        // clean up the code, sometimes the model likes to add commas to it if the user had to make several attempts at getting a well-formed password
+        String cleanCode = code.split(",")[0];
+        Optional<Verification> optionalVerification = verificationRepository.findByCode(cleanCode);
+        return optionalVerification.orElse(null);
+    }
+
     private User verificationUserGetterByUsername(String username) {
         Optional<User> optionalUser = userRepository.getUserByUsername(username);
         return optionalUser.orElse(null);
@@ -107,12 +114,5 @@ public class VerificationService {
     private User verificationUserGetterById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.orElse(null);
-    }
-
-    private Verification verificationEntryGetter(String code) {
-        // clean up the code, sometimes the model likes to add commas to it if the user had to make several attempts at getting a well-formed password
-        String cleanCode = code.split(",")[0];
-        Optional<Verification> optionalVerification = verificationRepository.findByCode(cleanCode);
-        return optionalVerification.orElse(null);
     }
 }
