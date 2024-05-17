@@ -29,7 +29,7 @@ public class RegistrationService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.validationService = validationService;
-        log.info("START: RegistrationService");
+        log.info("AUTH_START: RegistrationService");
     }
 
     public void registerNewUser(Registration registration) {
@@ -39,7 +39,7 @@ public class RegistrationService {
         user.setEnabled(false);
         user.setGrantedAuthority(Collections.singletonList(USER));
         User savedUser = userRepository.save(user);
-        log.warn("REGISTRATION: RegistrationService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
+        log.warn("AUTH_REGISTRATION: RegistrationService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
         verificationService.verificationCodeGenerator(savedUser, false);
     }
 
@@ -50,10 +50,10 @@ public class RegistrationService {
             User user = optionalUser.get();
             verificationService.verificationCodeGenerator(user, true);
             returnMap.put("message", "A password reset will be emailed to you soon");
-            log.warn("REGISTRATION: RegistrationService.registerNewPassword({}) - Password updated", registration.email());
+            log.warn("AUTH_REGISTRATION: RegistrationService.registerNewPassword({}) - Password updated", registration.email());
             return returnMap;
         }
-        log.warn("REGISTRATION: RegistrationService.registerNewPassword({}) - User was not found, dropping the call", registration.email());
+        log.warn("AUTH_REGISTRATION: RegistrationService.registerNewPassword({}) - User was not found, dropping the call", registration.email());
         returnMap.put("message", "A password reset will be emailed to you soon");
         return returnMap;
     }

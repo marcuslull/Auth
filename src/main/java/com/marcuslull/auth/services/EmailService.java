@@ -22,7 +22,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
 
     public EmailService(JavaMailSender javaMailSender) {
-        log.info("START: EmailService");
+        log.info("AUTH_START: EmailService");
         this.javaMailSender = javaMailSender;
     }
 
@@ -30,9 +30,9 @@ public class EmailService {
         SimpleMailMessage simpleMailMessage = getSimpleMailMessageProcessor(to, code, isReset);
         try {
             javaMailSender.send(simpleMailMessage);
-            log.warn("EMAIL: EmailService.sendEmail(email: {} link: {}) - Success, message sent", to, code);
+            log.warn("AUTH_EMAIL: EmailService.sendEmail(email: {} link: {}) - Success, message sent", to, code);
         } catch (Exception e) {
-            log.warn("EMAIL: EmailService.sendEmail(email: {} link: {}) - Failure, authentication or network error", to, code);
+            log.warn("AUTH_EMAIL: EmailService.sendEmail(email: {} link: {}) - Failure, authentication or network error", to, code);
             throw new RuntimeException(e);
         }
     }
@@ -41,12 +41,12 @@ public class EmailService {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(to);
         if (isReset) {
-            log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building password reset email", to, code);
+            log.warn("AUTH_EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building password reset email", to, code);
             simpleMailMessage.setFrom(FROM);
             simpleMailMessage.setSubject(RESET_SUBJECT);
             simpleMailMessage.setText(RESET_BASE_TEXT + RESET_LINK + code);
         } else {
-            log.warn("EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building account register email", to, code);
+            log.warn("AUTH_EMAIL: EmailService.getSimpleMailMessageProcessor(email: {} code: {}) - Building account register email", to, code);
             simpleMailMessage.setFrom(FROM);
             simpleMailMessage.setSubject(VERIFY_SUBJECT);
             simpleMailMessage.setText(VERIFY_BASE_TEXT + VERIFY_LINK + code);

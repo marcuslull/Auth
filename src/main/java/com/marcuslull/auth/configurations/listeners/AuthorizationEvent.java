@@ -9,7 +9,6 @@ import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Configuration
@@ -18,17 +17,17 @@ public class AuthorizationEvent {
     @Bean
     public AuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         // listener for authorization events
-        log.info("START: AuthorizationEvent.authorizationEventPublisher()");
+        log.info("AUTH_START: AuthorizationEvent.authorizationEventPublisher()");
         return new SpringAuthorizationEventPublisher(applicationEventPublisher);
     }
 
     @EventListener
     public void onSuccess(AuthorizationGrantedEvent<AuthorizationEvent> grantedEvent) {
-        log.warn("EVENT: AuthorizationEvent.onSuccess({})", grantedEvent);
+        log.warn("AUTH_EVENT: AuthorizationEvent.onSuccess({})", grantedEvent);
     }
 
     @EventListener
     public void onFailure(AuthorizationDeniedEvent<AuthorizationEvent> deniedEvent) {
-        log.warn("EVENT: AuthorizationEvent.onFailure({})", deniedEvent);
+        log.warn("AUTH_EVENT: AuthorizationEvent.onFailure({})", deniedEvent);
     }
 }

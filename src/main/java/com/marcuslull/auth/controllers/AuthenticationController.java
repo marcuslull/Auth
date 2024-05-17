@@ -21,20 +21,20 @@ public class AuthenticationController {
 
     @GetMapping("/login")
     public String displayLogin(HttpServletRequest request) {
-        log.warn("REQUEST: AuthenticationController.displayLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        log.warn("AUTH_REQUEST: AuthenticationController.displayLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         // logic is handled by Spring Security via SecurityConfiguration
         return "login";
     }
 
     @PostMapping("/login")
     public void postLogin(HttpServletRequest request) {
-        log.warn("REQUEST: AuthenticationController.postLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        log.warn("AUTH_REQUEST: AuthenticationController.postLogin() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         // logic is handled by Spring Security via SecurityConfiguration
     }
 
     @GetMapping("/logout")
     public String displayLogout(HttpServletRequest request) {
-        log.warn("REQUEST: AuthenticationController.getLogout() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        log.warn("AUTH_REQUEST: AuthenticationController.getLogout() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         return "logout";
     }
 
@@ -45,7 +45,7 @@ public class AuthenticationController {
 
     @GetMapping("/success")
     public String displaySuccess(HttpServletRequest request) {
-        log.warn("REQUEST: AuthenticationController.getSuccess() - {} {}", request.getRemoteAddr(), request.getRemotePort());
+        log.warn("AUTH_REQUEST: AuthenticationController.getSuccess() - {} {}", request.getRemoteAddr(), request.getRemotePort());
         return "success";
     }
 }

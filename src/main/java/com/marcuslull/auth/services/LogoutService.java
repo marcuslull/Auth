@@ -15,7 +15,7 @@ public class LogoutService {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         // the security context logout handler will properly log the user out according to Spring security settings and Security configuration
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-        log.warn("LOGOUT: LogoutService.logout({}) - Programmatic logout", authentication.getName());
+        log.warn("AUTH_LOGOUT: LogoutService.logout({}) - Programmatic logout", authentication.getName());
         logoutHandler.logout(request, response, authentication);
     }
 }

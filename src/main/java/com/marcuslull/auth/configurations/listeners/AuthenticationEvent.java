@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Configuration
@@ -18,17 +17,17 @@ public class AuthenticationEvent {
     @Bean
     public AuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         // listener for authentication events
-        log.info("START: AuthenticationEvent.authenticationEventPublisher()");
+        log.info("AUTH_START: AuthenticationEvent.authenticationEventPublisher()");
         return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     }
 
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent successEvent) {
-        log.warn("EVENT: AuthenticationEvent.onSuccess({})", successEvent);
+        log.warn("AUTH_EVENT: AuthenticationEvent.onSuccess({})", successEvent);
     }
 
     @EventListener
     public void onFailure(AbstractAuthenticationFailureEvent failureEvent) {
-        log.warn("EVENT: AuthenticationEvent.onFailure({})", failureEvent);
+        log.warn("AUTH_EVENT: AuthenticationEvent.onFailure({})", failureEvent);
     }
 }

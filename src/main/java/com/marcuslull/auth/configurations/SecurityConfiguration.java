@@ -25,7 +25,7 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
-        log.info("START: SecurityConfiguration.baseFilter()");
+        log.info("AUTH_START: SecurityConfiguration.baseFilter()");
         http
                 .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
@@ -52,7 +52,7 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        log.info("START: SecurityConfiguration.authenticationManager()");
+        log.info("AUTH_START: SecurityConfiguration.authenticationManager()");
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // using the standard username/password authentication
         authenticationProvider.setUserDetailsService(userDetailsService); // using CustomUserDetailsService for the user details configuration
         authenticationProvider.setPasswordEncoder(passwordEncoder); // using argon2 password encoder below
@@ -63,7 +63,7 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        log.info("START: SecurityConfiguration.passwordEncoder");
+        log.info("AUTH_START: SecurityConfiguration.passwordEncoder");
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
 //        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20);
         return new Argon2PasswordEncoder(0, 32, 1, 1 << 4, 1); // testing only
