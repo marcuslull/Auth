@@ -47,7 +47,7 @@ class EmailServiceTest {
         verify(javaMailSender, atLeastOnce()).send(any(SimpleMailMessage.class));
 
         ILoggingEvent loggingEvent = listAppender.list.get(1);
-        assertEquals("EMAIL: EmailService.sendEmail(email: to link: code) - Success, message sent", loggingEvent.getFormattedMessage());
+        assertEquals("AUTH_EMAIL: EmailService.sendEmail(email: to link: code) - Success, message sent", loggingEvent.getFormattedMessage());
         assertEquals(Level.WARN, loggingEvent.getLevel());
     }
 
@@ -57,7 +57,7 @@ class EmailServiceTest {
         verify(javaMailSender, atLeastOnce()).send(any(SimpleMailMessage.class));
 
         ILoggingEvent loggingEvent = listAppender.list.get(1);
-        assertEquals("EMAIL: EmailService.sendEmail(email: to link: code) - Success, message sent", loggingEvent.getFormattedMessage());
+        assertEquals("AUTH_EMAIL: EmailService.sendEmail(email: to link: code) - Success, message sent", loggingEvent.getFormattedMessage());
         assertEquals(Level.WARN, loggingEvent.getLevel());
     }
 }
