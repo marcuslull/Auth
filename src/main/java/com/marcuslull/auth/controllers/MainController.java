@@ -85,7 +85,9 @@ public class MainController {
     public String postReset(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
                             Model model, Registration registration, String code) {
         log.warn("AUTH_REQUEST: MainController.postReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        return passwordResetService.postProcessor(request, response, authentication, model, registration, code);
+        Map<String, Object> map = passwordResetService.postProcessor(request, response, authentication, registration, code);
+        model.addAllAttributes(map);
+        return "reset";
     }
 
     @GetMapping("/verify")

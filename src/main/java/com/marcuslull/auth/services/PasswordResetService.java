@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,46 +59,47 @@ public class PasswordResetService {
         return map;
     }
 
-    public String postProcessor(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
-                                Model model, Registration registration, String code) {
-        Map<String, String> returnMap;
+    public Map<String, Object> postProcessor(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
+                                Registration registration, String code) {
+        Map<String, Object> mapToController = new HashMap<>();
+        Map<String, String> mapFromServiceLayer;
         if (!registration.isReset()) { // this is for lost/new account verification links
             log.warn("AUTH_REQUEST: MainController.postReset() - Attempting to re-verify on user: {}", registration.email());
             verificationService.verificationCodeProcessor("", registration);
-            model.addAttribute("isVerify", false);
-            model.addAttribute("isGet", true);
-            model.addAttribute("message", "Please check your email for a new verification link.");
-            return "reset";
+            mapToController.put("isVerify", false);
+            mapToController.put("isGet", true);
+            mapToController.put("message", "Please check your email for a new verification link.");
+            return mapToController;
         }
 
         else if (code == null) { // first POST, email has been submitted, hand off to service layer for email validation and reset link generation
             log.warn("AUTH_REQUEST: MainController.postReset() - Attempting a password reset on user: {}", registration.email());
             log.warn("AUTH_REQUEST: MainController.postReset() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
-            returnMap = registrationService.registerNewPassword(registration); // service layer can respond with email validity messages
-            model.addAttribute("isVerify", false);
-            model.addAttribute("isGet", true);
-            model.addAttribute("message", returnMap.get("message"));
-            return "reset";
+            mapFromServiceLayer = registrationService.registerNewPassword(registration); // service layer can respond with email validity messages
+            mapToController.put("isVerify", false);
+            mapToController.put("isGet", true);
+            mapToController.put("message", mapFromServiceLayer.get("message"));
+            return mapToController;
         }
 
         else { // second POST, user has entered new credentials. Need hand-off to service layer for credential validation and the update
             log.warn("AUTH_REQUEST: MainController.postReset() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
-            returnMap = validationService.validatePasswordReset(registration);
-            if (returnMap.containsKey("message")) { // any password validity issues are returned to the view here
-                model.addAttribute("message", returnMap.get("message"));
-                model.addAttribute("isVerify", false);
-                return "reset";
+            mapFromServiceLayer = validationService.validatePasswordReset(registration);
+            if (mapFromServiceLayer.containsKey("message")) { // any password validity issues are returned to the view here
+                mapToController.put("message", mapFromServiceLayer.get("message"));
+                mapToController.put("isVerify", false);
+                return mapToController;
             }
             if (verificationService.verificationCodeProcessor(code, registration)) {
                 logoutService.logout(request, response, authentication);
-                model.addAttribute("isAnon", true);
-                model.addAttribute("message", "Success - please login.");
-                model.addAttribute("isVerify", false);
-                return "reset";
+                mapToController.put("isAnon", true);
+                mapToController.put("message", "Success - please login.");
+                mapToController.put("isVerify", false);
+                return mapToController;
             }
-            model.addAttribute("isGet", true);
+            mapToController.put("isGet", true);
         }
 
-        return "reset";
+        return mapToController;
     }
 }
