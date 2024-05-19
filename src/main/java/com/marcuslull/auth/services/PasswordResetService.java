@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -26,35 +27,37 @@ public class PasswordResetService {
         this.logoutService = logoutService;
     }
 
-    public Model displayProcessor(HttpServletRequest request, String code, boolean reVerify, Model model) {
+    public Map<String, Object> displayProcessor(HttpServletRequest request, String code, boolean reVerify) {
+
+        Map<String, Object> map = new HashMap<>();
 
         if (reVerify) { // this will be a lost code and the user will need a new one
             log.warn("AUTH_REQUEST: PasswordResetService.displayProcessor() - ReVerification {} {}", request.getRemoteAddr(), request.getRemotePort());
-            model.addAttribute("isVerify", true);
-            model.addAttribute("isGet", true); // the view needs to know where we are at in the process
-            model.addAttribute("message", "");
+            map.put("isVerify", true);
+            map.put("isGet", true); // the view needs to know where we are at in the process
+            map.put("message", "");
         }
 
         // This begins the password reset flow (GET /reset > POST /reset(email) > GET /reset(resetCode) > POST /reset(resetCode, new credentials))
         else if (code == null) { // first GET - resetCode should not be present
             log.warn("AUTH_REQUEST: PasswordResetService.displayProcessor() - First time through {} {}", request.getRemoteAddr(), request.getRemotePort());
-            model.addAttribute("isVerify", false);
-            model.addAttribute("isGet", true); // the view needs to know where we are at in the process
-            model.addAttribute("message", "");
+            map.put("isVerify", false);
+            map.put("isGet", true); // the view needs to know where we are at in the process
+            map.put("message", "");
         }
 
         else { // second GET, user clicked link in reset email, we need to pass the reset code to the POST form
             log.warn("AUTH_REQUEST: PasswordResetService.displayProcessor() - Second time through {} {}", request.getRemoteAddr(), request.getRemotePort());
             if (verificationService.verificationEntryGetter(code) == null) {
                 log.warn("AUTH_REQUEST: PasswordResetService.displayProcessor() - Used reset code, forwarding to /login");
-                model.addAttribute("invalidCode", true);
+                map.put("invalidCode", true);
             }
-            model.addAttribute("isVerify", false);
-            model.addAttribute("isGet", false);
-            model.addAttribute("code", code);
+            map.put("isVerify", false);
+            map.put("isGet", false);
+            map.put("code", code);
         }
 
-        return model;
+        return map;
     }
 
     public String postProcessor(HttpServletRequest request, HttpServletResponse response, Authentication authentication,

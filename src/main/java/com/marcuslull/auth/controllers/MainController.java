@@ -1,7 +1,10 @@
 package com.marcuslull.auth.controllers;
 
 import com.marcuslull.auth.models.Registration;
-import com.marcuslull.auth.services.*;
+import com.marcuslull.auth.services.PasswordResetService;
+import com.marcuslull.auth.services.RegistrationService;
+import com.marcuslull.auth.services.ValidationService;
+import com.marcuslull.auth.services.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -70,10 +73,11 @@ public class MainController {
                                @RequestParam(name = "reVerify", defaultValue = "false", required = false) boolean reVerify,
                                Model model) {
         log.warn("AUTH_REQUEST: MainController.displayReset() - {} {}", request.getRemoteAddr(), request.getRemotePort());
-        model = passwordResetService.displayProcessor(request, code, reVerify, model);
-        if (model.containsAttribute("invalidCode")) {
+        Map<String, Object> map = passwordResetService.displayProcessor(request, code, reVerify);
+        if (map.containsKey("invalidCode")) {
             return "redirect:/login";
         }
+        model.addAllAttributes(map);
         return "reset";
     }
 

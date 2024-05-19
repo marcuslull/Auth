@@ -2,22 +2,22 @@ package com.marcuslull.auth.controllers;
 
 
 import com.marcuslull.auth.models.Registration;
-import com.marcuslull.auth.models.Verification;
-import com.marcuslull.auth.services.LogoutService;
+import com.marcuslull.auth.services.PasswordResetService;
 import com.marcuslull.auth.services.RegistrationService;
 import com.marcuslull.auth.services.ValidationService;
 import com.marcuslull.auth.services.VerificationService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.ui.Model;
+
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,7 +37,7 @@ class MainControllerTest {
     @MockBean
     private ValidationService validationService;
     @MockBean
-    private LogoutService logoutService;
+    private PasswordResetService passwordResetService;
 
     @Test
     @WithAnonymousUser
@@ -76,18 +76,23 @@ class MainControllerTest {
     @Test
     @WithAnonymousUser
     void displayResetWithNoCodeTest() throws Exception {
+        Map<String, Object> map = Map.of("isVerify", false, "isGet", true, "message", "");
+        when(passwordResetService.displayProcessor(any(HttpServletRequest.class), nullable(String.class), anyBoolean())).thenReturn(map);
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("reset"))
                 .andExpect(model().attribute("isGet",true))
+                .andExpect(model().attribute("isVerify",false))
                 .andExpect(model().attribute("message",""));
+        verify(passwordResetService).displayProcessor(any(HttpServletRequest.class), nullable(String.class), eq(false));
     }
 
     @Test
     @WithAnonymousUser
     void displayResetWithCodeTest() throws Exception {
-        when(verificationService.verificationEntryGetter(anyString())).thenReturn(new Verification());
+        Map<String, Object> map = Map.of("isVerify", false, "isGet", false, "code", "randomUUID");
+        when(passwordResetService.displayProcessor(any(HttpServletRequest.class), anyString(), anyBoolean())).thenReturn(map);
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("code", "randomUUID"))
@@ -95,22 +100,27 @@ class MainControllerTest {
                 .andExpect(view().name("reset"))
                 .andExpect(model().attribute("isGet",false))
                 .andExpect(model().attribute("code","randomUUID"));
+        verify(passwordResetService).displayProcessor(any(HttpServletRequest.class), anyString(), eq(false));
     }
 
     @Test
     @WithAnonymousUser
     void displayResetWithUsedCodeTest() throws Exception {
-        when(verificationService.verificationEntryGetter(anyString())).thenReturn(null);
+        Map<String, Object> map = Map.of("invalidCode", true);
+        when(passwordResetService.displayProcessor(any(HttpServletRequest.class), anyString(), anyBoolean())).thenReturn(map);
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("code", "randomUUID"))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/login"));
+        verify(passwordResetService).displayProcessor(any(HttpServletRequest.class), anyString(), eq(false));
     }
 
     @Test
     @WithAnonymousUser
     void displayResetWithReVerifyTest() throws Exception {
+        Map<String, Object> map = Map.of("isVerify", true, "isGet", true, "message", "");
+        when(passwordResetService.displayProcessor(any(HttpServletRequest.class), nullable(String.class), anyBoolean())).thenReturn(map);
         mockMvc.perform(MockMvcRequestBuilders.get("/reset")
                         .with(csrf())
                         .queryParam("reVerify", "true"))
@@ -119,6 +129,7 @@ class MainControllerTest {
                 .andExpect(model().attribute("isVerify", true))
                 .andExpect(model().attribute("isGet",true))
                 .andExpect(model().attribute("message",""));
+        verify(passwordResetService).displayProcessor(any(HttpServletRequest.class), nullable(String.class), eq(true));
     }
 
     @Test
@@ -152,7 +163,6 @@ class MainControllerTest {
 
         verify(validationService, atLeastOnce()).validatePasswordReset(any(Registration.class));
         verify(verificationService, atLeastOnce()).verificationCodeProcessor(anyString(), any(Registration.class));
-        verify(logoutService, atLeastOnce()).logout(any(HttpServletRequest.class), any(HttpServletResponse.class), nullable(Authentication.class));
     }
 
     @Test
