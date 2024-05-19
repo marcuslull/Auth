@@ -8,11 +8,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -24,18 +27,41 @@ public class SecurityConfiguration {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
-        log.info("AUTH_START: SecurityConfiguration.baseFilter()");
+    public SecurityFilterChain AuthorizationServerFilterChain(HttpSecurity http) throws Exception {
+        log.info("AUTH_START: SecurityConfiguration.AuthorizationServerFilterChain()");
+
+        // Apply base OAuth defaults for Spring Authorization server
+        // This matches on all the default endpoints authorization server uses, defines the scope of this filter chain
+        // to those endpoints and also disables csrf for them. Sets all other endpoints to .authenticated()
+        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+
         http
+                // adds the above default configurer to the configuration
+                .getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                // enables OpenID Connect - Provides for the endpoints required to support OIDC
+                .oidc(Customizer.withDefaults());
+
+        http
+                // any exceptions such as access denied should be redirected to /login
                 .exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
-                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
 
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
+        log.info("AUTH_START: SecurityConfiguration.baseFilter()");
+
+        http
+                // access configuration - must be ordered by specificity
                 .authorizeHttpRequests(authorize -> authorize
-                        // must be ordered by specificity
                         .requestMatchers("/images/**", "/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
                         .anyRequest().authenticated())
 
+                // custom login page handling
                 .formLogin(form -> form.loginPage("/login").permitAll()
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
@@ -43,6 +69,7 @@ public class SecurityConfiguration {
                         .passwordParameter("password")
                         .failureUrl("/login?error")) // pass the error back to /login as a param
 
+                // custom logout page handling
                 .logout(logout -> logout.logoutUrl("/logout")
                         .logoutSuccessUrl("/success").permitAll()
                         .deleteCookies("JSESSIONID"));
