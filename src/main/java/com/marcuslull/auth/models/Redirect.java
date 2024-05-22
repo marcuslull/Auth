@@ -12,7 +12,13 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "redirects")
-public class Redirects {
+public class Redirect {
+
+    public Redirect(String url, Client client) {
+        this.url = url;
+        this.clientId = client;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -23,4 +29,8 @@ public class Redirects {
 
     @ManyToOne
     private Client clientId;
+
+    public static Redirect mapper(String url, Client client) {
+        return new Redirect(url, client);
+    }
 }

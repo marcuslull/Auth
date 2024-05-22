@@ -13,6 +13,12 @@ import lombok.Setter;
 @Entity
 @Table(name = "scopes")
 public class Scope {
+
+    public Scope(String scope, Client client) {
+        this.scope = scope;
+        this.clientId = client;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -23,4 +29,8 @@ public class Scope {
 
     @ManyToOne
     private Client clientId;
+
+    public static Scope mapper(String scope, Client client) {
+        return new Scope(scope, client);
+    }
 }

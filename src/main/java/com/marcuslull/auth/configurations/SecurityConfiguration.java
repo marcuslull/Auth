@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
@@ -102,11 +101,5 @@ public class SecurityConfiguration {
     public AuthorizationServerSettings authorizationServerSettings() {
         // entry point for OAuth/OIDC endpoint customizations
         return AuthorizationServerSettings.builder().build();
-    }
-
-    @Bean
-    public RegisteredClientRepository registeredClientRepository() {
-        // Storing and managing OAuth clients. These are the client services that hand off to this server for auth.
-        return null;
     }
 }
