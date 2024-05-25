@@ -16,6 +16,7 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -94,5 +95,11 @@ public class SecurityConfiguration {
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
 //        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20);
         return new Argon2PasswordEncoder(0, 32, 1, 1 << 4, 1); // testing only
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        // entry point for OAuth/OIDC endpoint customizations
+        return AuthorizationServerSettings.builder().build();
     }
 }
