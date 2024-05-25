@@ -26,7 +26,7 @@ public class ClientService implements RegisteredClientRepository {
 
     @Override
     public void save(RegisteredClient registeredClient) {
-        log.info("AUTH_CLIENT: ClientService.save({}) - persisting new client", registeredClient.getClientName());
+        log.warn("AUTH_CLIENT: ClientService.save({}) - persisting new client", registeredClient.getClientName());
 
         // TODO: This should be its own class
         // convert from Spring default RegisteredClient to my custom Client entity and then persist
@@ -53,12 +53,14 @@ public class ClientService implements RegisteredClientRepository {
 
     @Override
     public RegisteredClient findById(String id) {
+        log.warn("AUTH_CLIENT: ClientService.findById({}) - finding client", id);
         Optional<Client> optionalClient = clientRepository.findById(Long.valueOf(id));
         return optionalClient.map(Client::mapper).orElseThrow();
     }
 
     @Override
     public RegisteredClient findByClientId(String clientId) {
+        log.warn("AUTH_CLIENT: ClientService.findByClientId({}) - finding client", clientId);
         Optional<Client> optionalClient = clientRepository.findByClientId(clientId);
         return optionalClient.map(Client::mapper).orElseThrow();
     }
