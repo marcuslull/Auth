@@ -2,6 +2,7 @@ package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.*;
 import com.marcuslull.auth.repositories.ClientRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -54,14 +55,16 @@ public class ClientService implements RegisteredClientRepository {
     @Override
     public RegisteredClient findById(String id) {
         log.warn("AUTH_CLIENT: ClientService.findById({}) - finding client", id);
+        // Convert from custom Client to Spring RegisteredClient
         Optional<Client> optionalClient = clientRepository.findById(Long.valueOf(id));
-        return optionalClient.map(Client::mapper).orElseThrow();
+        return optionalClient.map(Client::mapper).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
     public RegisteredClient findByClientId(String clientId) {
         log.warn("AUTH_CLIENT: ClientService.findByClientId({}) - finding client", clientId);
+        // Convert from custom Client to Spring RegisteredClient
         Optional<Client> optionalClient = clientRepository.findByClientId(clientId);
-        return optionalClient.map(Client::mapper).orElseThrow();
+        return optionalClient.map(Client::mapper).orElseThrow(EntityNotFoundException::new);
     }
 }
