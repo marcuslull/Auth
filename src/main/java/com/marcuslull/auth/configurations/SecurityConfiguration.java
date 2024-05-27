@@ -37,7 +37,7 @@ public class SecurityConfiguration {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
         http
-                // adds the above default configurer to the configuration
+                // gets the above default configurer to the configuration to customize it further
                 .getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 // enables OpenID Connect - Provides for the endpoints required to support OIDC
                 .oidc(Customizer.withDefaults());
