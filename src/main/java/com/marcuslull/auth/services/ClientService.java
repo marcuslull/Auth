@@ -29,7 +29,7 @@ public class ClientService implements RegisteredClientRepository {
     public void save(RegisteredClient registeredClient) {
         log.warn("AUTH_CLIENT: ClientService.save({}) - persisting new client", registeredClient.getClientName());
 
-        // TODO: This should be its own class
+        // TODO: Move to helper or class
         // convert from Spring default RegisteredClient to my custom Client entity and then persist
         Client client = new Client();
         client.setClientId(registeredClient.getClientId());
