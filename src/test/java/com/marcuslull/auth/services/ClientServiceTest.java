@@ -1,6 +1,7 @@
 package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.*;
+import com.marcuslull.auth.models.enums.ScopeType;
 import com.marcuslull.auth.repositories.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,10 +51,10 @@ class ClientServiceTest {
         builder.clientId("1").id("1").clientName("name").clientSecret("secret").clientSecretExpiresAt(Instant.now())
                 .clientIdIssuedAt(Instant.now()).clientAuthenticationMethod(clientAuthenticationMethod)
                 .authorizationGrantType(authorizationGrantType).redirectUri("redirectUri").postLogoutRedirectUri("post")
-                .scope("scope").clientSettings(clientSettings).tokenSettings(tokenSettings);
+                .scope("openid").clientSettings(clientSettings).tokenSettings(tokenSettings);
         registeredClient = builder.build();
 
-        Scope scope = new Scope("scope", new Client());
+        Scope scope = new Scope(ScopeType.valueOfLabel("openid"), new Client());
         AuthenticationMethod authenticationMethod = new AuthenticationMethod("client_secret_basic", new Client());
         GrantType grantType = new GrantType("authorization_code", new Client());
         Redirect redirect = new Redirect("redirectUri", new Client());

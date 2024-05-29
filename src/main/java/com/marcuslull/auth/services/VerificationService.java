@@ -1,8 +1,8 @@
 package com.marcuslull.auth.services;
 
-import com.marcuslull.auth.models.Registration;
 import com.marcuslull.auth.models.User;
 import com.marcuslull.auth.models.Verification;
+import com.marcuslull.auth.models.records.Registration;
 import com.marcuslull.auth.repositories.UserRepository;
 import com.marcuslull.auth.repositories.VerificationRepository;
 import lombok.extern.slf4j.Slf4j;

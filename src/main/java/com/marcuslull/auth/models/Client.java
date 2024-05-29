@@ -1,5 +1,6 @@
 package com.marcuslull.auth.models;
 
+import com.marcuslull.auth.models.enums.ScopeType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -25,46 +27,52 @@ import java.util.function.Consumer;
 public class Client implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private long id;
 
-    @Column(name = "client_id", nullable = false, length = 100, unique = true)
+    @Column(name = "client_id", length = 100, unique = true)
     private String clientId;
 
-    @Column(name = "name", nullable = false, length = 50)
+    @Column(name = "name", length = 50)
     private String name;
 
-    @Column(name = "secret", nullable = false, length = 500)
+    @Column(name = "secret", length = 500)
     private String secret;
 
-    @Column(name = "client_settings", nullable = false)
+    @Column(name = "client_settings")
     private ClientSettings clientSettings;
 
-    @Column(name = "token_settings", nullable = false)
+    @Column(name = "token_settings")
     private TokenSettings tokenSettings;
 
-    @OneToMany(mappedBy = "clientId")
-    @Column(name = "avail_scopes", nullable = false, length = 2000)
-    private List<Scope> availScopes; // the permission scopes this client can offer to the user
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    @Column(name = "avail_scopes", length = 2000)
+    private List<Scope> availScopes = new ArrayList<>(); // the permission scopes this client can offer to the user
+
+    public void addScope(ScopeType scopeType) {
+        if(this.availScopes.stream().noneMatch(scope -> scope.getScope() == scopeType)) {
+            this.availScopes.add(new Scope(scopeType, this));
+        }
+    }
 
     @OneToMany(mappedBy = "clientId")
-    @Column(name = "auth_methods", nullable = false, length = 2000)
+    @Column(name = "auth_methods", length = 2000)
     private List<AuthenticationMethod> authMethods; // the authentication methods this client can use to authenticate with this auth server
 
     @OneToMany(mappedBy = "clientId")
-    @Column(name = "grant_types", nullable = false, length = 2000)
+    @Column(name = "grant_types", length = 2000)
     private List<GrantType> grantTypes; // the methods available to retrieve a token from this auth server
 
     @OneToMany(mappedBy = "clientId")
-    @Column(name = "red_uris", nullable = false, length = 2000)
+    @Column(name = "red_uris", length = 2000)
     private List<Redirect> redUris; // where the user will be redirected to after they log in
 
     @OneToMany(mappedBy = "clientId")
-    @Column(name = "post_log_red_uris", nullable = false, length = 2000)
+    @Column(name = "post_log_red_uris", length = 2000)
     private List<Redirect> postLogRedUris; // where the user will be redirected after they log out
 
     @OneToMany(mappedBy = "clientId")
-    @Column(name = "authorizations", nullable = false, length = 2000)
+    @Column(name = "authorizations", length = 2000)
     private List<ClientAuthorization> authorizations; // list of current authorizations
 
     public static RegisteredClient mapper(Client client) {
@@ -85,7 +93,7 @@ public class Client implements Serializable {
     private static Consumer<Set<String>> convertScope(List<Scope> scopes) {
         return consumer -> {
             for (Scope scope : scopes) {
-                consumer.add(scope.getScope());
+                consumer.add(scope.getScope().label);
             }
         };
     }
