@@ -1,7 +1,7 @@
 package com.marcuslull.auth.controllers;
 
 
-import com.marcuslull.auth.models.Registration;
+import com.marcuslull.auth.models.records.Registration;
 import com.marcuslull.auth.services.PasswordResetService;
 import com.marcuslull.auth.services.RegistrationService;
 import com.marcuslull.auth.services.ValidationService;

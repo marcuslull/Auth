@@ -1,6 +1,7 @@
 package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.*;
+import com.marcuslull.auth.models.enums.ScopeType;
 import com.marcuslull.auth.repositories.ClientRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class ClientService implements RegisteredClientRepository {
         client.setClientSettings(registeredClient.getClientSettings());
         client.setTokenSettings(registeredClient.getTokenSettings());
         client.setAvailScopes(registeredClient
-                .getScopes().stream().map(scope -> Scope.mapper(scope, client)).toList());
+                .getScopes().stream().map(scope -> Scope.mapper(ScopeType.valueOfLabel(scope), client)).toList());
         client.setAuthMethods(registeredClient
                 .getClientAuthenticationMethods().stream().map(auth -> AuthenticationMethod.mapper(auth, client)).toList());
         client.setGrantTypes(registeredClient

@@ -1,5 +1,9 @@
 drop sequence if exists users_SEQ;
 drop sequence if exists clients_SEQ;
+drop sequence if exists scopes_SEQ;
+drop sequence if exists redirects_SEQ;
+drop sequence if exists grants_SEQ;
+drop sequence if exists auth_method_SEQ;
 drop index if exists ix_auth_username;
 drop table if exists authorities;
 drop table if exists verification;
@@ -34,63 +38,56 @@ create table verification (
 );
 
 create table clients (
-    id bigserial not null primary key,
-    client_id varchar(100) not null unique,
-    name varchar(50) not null,
-    secret varchar(500) not null,
-    client_settings bytea not null ,
-    token_settings bytea not null,
-    avail_scopes varchar(2000) not null,
-    auth_methods varchar(2000) not null,
-    grant_types varchar(2000) not null,
-    red_uris varchar(2000) not null,
-    post_log_red_uris varchar(2000) not null,
-    authorizations varchar(2000) not null
+    id bigint,
+    client_id varchar(100),
+    name varchar(50),
+    secret varchar(500),
+    client_settings bytea,
+    token_settings bytea
 );
 
 create table authorizations (
-    id bigserial not null primary key,
-    principal_name varchar(200) not null,
-    access_token_type varchar(100) not null,
-    access_token_value bytea not null,
-    access_token_issued_at timestamp not null,
-    access_token_expires_at timestamp not null,
-    access_token_scopes varchar(1000) not null,
-    refresh_token_value bytea default null,
-    refresh_token_issued_at timestamp default null,
-    created_at timestamp default CURRENT_TIMESTAMP not null,
-    client_id varchar(100) not null,
-    constraint fk_auth_clients foreign key(client_id) references clients(client_id)
+    id bigint,
+    principal_name varchar(200),
+    access_token_type varchar(100),
+    access_token_value bytea,
+    access_token_issued_at timestamp,
+    access_token_expires_at timestamp,
+    access_token_scopes varchar(1000),
+    refresh_token_value bytea,
+    refresh_token_issued_at timestamp,
+    client_id varchar(100) not null
 );
 
 create table redirects (
-    id bigserial not null primary key,
-    url varchar(500) not null,
-    client_id varchar(100),
-    constraint fk_red_clients foreign key (client_id) references clients(client_id)
+    id bigint,
+    url varchar(500),
+    client_id varchar(100)
 );
 
 create table scopes (
-    id bigserial not null primary key,
-    scope varchar(50) not null,
-    client_id varchar(100) not null,
-    constraint fk_scope_clients foreign key(client_id) references clients(client_id)
+    id bigint,
+    scope int,
+    client bigint
 );
 
 create table grants (
-    id bigserial not null primary key,
-    grant_type varchar(50) not null,
-    client_id varchar(100) not null,
-    constraint fk_grants_clients foreign key(client_id) references clients(client_id)
+    id bigint,
+    grant_type varchar(50),
+    client_id varchar(100)
 );
 
 create table auth_method (
-    id bigserial not null primary key,
-    auth_method varchar(50) not null,
-    client_id varchar(100) not null,
-    constraint fk_grants_clients foreign key(client_id) references clients(client_id)
+    id bigint,
+    auth_method varchar(50),
+    client_id varchar(100)
 );
 
 create unique index ix_auth_username on authorities (id,authority);
 
 create sequence users_SEQ start with 100 increment by 1;
+create sequence clients_SEQ start with 100 increment by 50;
+create sequence scopes_SEQ start with 100 increment by 50;
+create sequence redirects_SEQ start with 100 increment by 50;
+create sequence grants_SEQ start with 100 increment by 50;
+create sequence auth_method_SEQ start with 100 increment by 50;

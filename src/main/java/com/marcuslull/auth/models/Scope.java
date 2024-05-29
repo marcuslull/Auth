@@ -1,5 +1,6 @@
 package com.marcuslull.auth.models;
 
+import com.marcuslull.auth.models.enums.ScopeType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,23 +15,25 @@ import lombok.Setter;
 @Table(name = "scopes")
 public class Scope {
 
-    public Scope(String scope, Client client) {
+    public Scope(ScopeType scope, Client client) {
         this.scope = scope;
-        this.clientId = client;
+        this.client = client;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private long id;
 
-    @Column(name = "scope", nullable = false, length = 50)
-    private String scope;
+    @Column(name = "scope", length = 50)
+    @Enumerated
+    private ScopeType scope;
 
     @ManyToOne
-    private Client clientId;
+    @JoinColumn(name = "client")
+    private Client client;
 
-    public static Scope mapper(String scope, Client client) {
+    public static Scope mapper(ScopeType scope, Client client) {
         return new Scope(scope, client);
     }
 }

@@ -1,6 +1,6 @@
 package com.marcuslull.auth.services;
 
-import com.marcuslull.auth.models.Registration;
+import com.marcuslull.auth.models.records.Registration;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
