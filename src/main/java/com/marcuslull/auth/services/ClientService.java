@@ -1,6 +1,8 @@
 package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.*;
+import com.marcuslull.auth.models.enums.AuthType;
+import com.marcuslull.auth.models.enums.GrantType;
 import com.marcuslull.auth.models.enums.ScopeType;
 import com.marcuslull.auth.repositories.ClientRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -38,12 +40,12 @@ public class ClientService implements RegisteredClientRepository {
         client.setSecret(passwordEncoder.encode(registeredClient.getClientSecret()));
         client.setClientSettings(registeredClient.getClientSettings());
         client.setTokenSettings(registeredClient.getTokenSettings());
-        client.setAvailScopes(registeredClient
+        client.setAvailableScopes(registeredClient
                 .getScopes().stream().map(scope -> Scope.mapper(ScopeType.valueOfLabel(scope), client)).toList());
         client.setAuthMethods(registeredClient
-                .getClientAuthenticationMethods().stream().map(auth -> AuthenticationMethod.mapper(auth, client)).toList());
-        client.setGrantTypes(registeredClient
-                .getAuthorizationGrantTypes().stream().map(grant -> GrantType.mapper(grant, client)).toList());
+                .getClientAuthenticationMethods().stream().map(auth -> Auth.mapper(AuthType.valueOfLabel(auth.getValue()), client)).toList());
+        client.setAvailableGrants(registeredClient
+                .getAuthorizationGrantTypes().stream().map(grant -> Grant.mapper(GrantType.valueOfLabel(grant.getValue()), client)).toList());
         client.setRedUris(registeredClient
                 .getRedirectUris().stream().map(url -> Redirect.mapper(url, client)).toList());
         client.setPostLogRedUris(registeredClient

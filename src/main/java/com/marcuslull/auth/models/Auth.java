@@ -1,6 +1,6 @@
 package com.marcuslull.auth.models;
 
-import com.marcuslull.auth.models.enums.ScopeType;
+import com.marcuslull.auth.models.enums.AuthType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,11 +12,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "scopes")
-public class Scope {
+@Table(name = "auths")
+public class Auth {
 
-    public Scope(ScopeType scope, Client client) {
-        this.scope = scope;
+    public Auth(AuthType authType, Client client) {
+        this.authType = authType;
         this.client = client;
     }
 
@@ -25,15 +25,15 @@ public class Scope {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "scope")
+    @Column(name = "auth_type")
     @Enumerated
-    private ScopeType scope;
+    private AuthType authType;
 
     @ManyToOne
     @JoinColumn(name = "client")
     private Client client;
 
-    public static Scope mapper(ScopeType scopeType, Client client) {
-        return new Scope(scopeType, client);
+    public static Auth mapper(AuthType authType, Client client) {
+        return new Auth(authType, client);
     }
 }

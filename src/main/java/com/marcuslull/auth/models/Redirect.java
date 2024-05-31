@@ -16,19 +16,19 @@ public class Redirect {
 
     public Redirect(String url, Client client) {
         this.url = url;
-        this.clientId = client;
+        this.client = client;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private long id;
 
-    @Column(name = "url", nullable = false, length = 500)
+    @Column(name = "url")
     private String url;
 
     @ManyToOne
-    private Client clientId;
+    private Client client;
 
     public static Redirect mapper(String url, Client client) {
         return new Redirect(url, client);

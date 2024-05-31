@@ -1,5 +1,7 @@
 package com.marcuslull.auth.models;
 
+import com.marcuslull.auth.models.enums.AuthType;
+import com.marcuslull.auth.models.enums.GrantType;
 import com.marcuslull.auth.models.enums.ScopeType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -45,35 +48,59 @@ public class Client implements Serializable {
     @Column(name = "token_settings")
     private TokenSettings tokenSettings;
 
+    // the permissions this client can offer
     @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
-    @Column(name = "avail_scopes", length = 2000)
-    private List<Scope> availScopes = new ArrayList<>(); // the permission scopes this client can offer to the user
+    private List<Scope> availableScopes = new ArrayList<>();
 
     public void addScope(ScopeType scopeType) {
-        if(this.availScopes.stream().noneMatch(scope -> scope.getScope() == scopeType)) {
-            this.availScopes.add(new Scope(scopeType, this));
+        if(this.availableScopes.stream().noneMatch(scope -> scope.getScope() == scopeType)) {
+            this.availableScopes.add(new Scope(scopeType, this));
         }
     }
 
-    @OneToMany(mappedBy = "clientId")
-    @Column(name = "auth_methods", length = 2000)
-    private List<AuthenticationMethod> authMethods; // the authentication methods this client can use to authenticate with this auth server
+    // the methods available to retrieve a token from this auth server
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    private List<Grant> availableGrants = new ArrayList<>();
 
-    @OneToMany(mappedBy = "clientId")
-    @Column(name = "grant_types", length = 2000)
-    private List<GrantType> grantTypes; // the methods available to retrieve a token from this auth server
+    public void addGrant(GrantType grantType) {
+        if(this.availableGrants.stream().noneMatch(grant -> grant.getGrantType() == grantType)) {
+            this.availableGrants.add(new Grant(grantType, this));
+        }
+    }
 
-    @OneToMany(mappedBy = "clientId")
-    @Column(name = "red_uris", length = 2000)
-    private List<Redirect> redUris; // where the user will be redirected to after they log in
+    // the authentication methods this client can use to authenticate with this auth server
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    private List<Auth> authMethods = new ArrayList<>();
 
-    @OneToMany(mappedBy = "clientId")
-    @Column(name = "post_log_red_uris", length = 2000)
-    private List<Redirect> postLogRedUris; // where the user will be redirected after they log out
+    public void addAuth(AuthType authType) {
+        if (this.authMethods.stream().noneMatch(auth -> Objects.equals(auth.getAuthType(), authType))) {
+            this.authMethods.add(new Auth(authType, this));
+        }
+    }
 
+    // where the user will be redirected to after they log in
+    @OneToMany(mappedBy = "client")
+    private List<Redirect> redUris = new ArrayList<>();
+
+    public void addPreRedirect(String redirect) {
+        if (this.redUris.stream().noneMatch(redir -> redir.getUrl().equals(redirect))) {
+            this.redUris.add(new Redirect(redirect, this));
+        }
+    }
+
+    // where the user will be redirected after they log out
+    @OneToMany(mappedBy = "client")
+    private List<Redirect> postLogRedUris = new ArrayList<>();
+
+    public void addPostRedirect(String redirect) {
+        if (this.postLogRedUris.stream().noneMatch(redir -> redir.getUrl().equals(redirect))) {
+            this.postLogRedUris.add(new Redirect(redirect, this));
+        }
+    }
+
+    // list of current authorizations
     @OneToMany(mappedBy = "clientId")
-    @Column(name = "authorizations", length = 2000)
-    private List<ClientAuthorization> authorizations; // list of current authorizations
+    private List<ClientAuthorization> authorizations;
 
     public static RegisteredClient mapper(Client client) {
         return RegisteredClient.withId(String.valueOf(client.getId()))
@@ -82,9 +109,9 @@ public class Client implements Serializable {
                 .clientSecret(client.getSecret())
                 .clientSettings(client.getClientSettings())
                 .tokenSettings(client.getTokenSettings())
-                .scopes(convertScope(client.getAvailScopes()))
+                .scopes(convertScope(client.getAvailableScopes()))
                 .clientAuthenticationMethods(convertAuthMethod(client.getAuthMethods()))
-                .authorizationGrantTypes(convertGrantType(client.getGrantTypes()))
+                .authorizationGrantTypes(convertGrantType(client.getAvailableGrants()))
                 .redirectUris(convertRedirectUri(client.getRedUris()))
                 .postLogoutRedirectUris(convertRedirectUri(client.getPostLogRedUris()))
                 .build();
@@ -98,18 +125,18 @@ public class Client implements Serializable {
         };
     }
 
-    private static Consumer<Set<ClientAuthenticationMethod>> convertAuthMethod(List<AuthenticationMethod> authenticationMethods) {
+    private static Consumer<Set<ClientAuthenticationMethod>> convertAuthMethod(List<Auth> auths) {
         return consumer -> {
-            for (AuthenticationMethod auth : authenticationMethods) {
-                consumer.add(new ClientAuthenticationMethod(auth.getAuthMethod()));
+            for (Auth auth : auths) {
+                consumer.add(new ClientAuthenticationMethod(auth.getAuthType().label));
             }
         };
     }
 
-    private static Consumer<Set<AuthorizationGrantType>> convertGrantType(List<GrantType> grantTypes) {
+    private static Consumer<Set<AuthorizationGrantType>> convertGrantType(List<Grant> grants) {
         return consumer -> {
-            for (GrantType grant : grantTypes) {
-                consumer.add(new AuthorizationGrantType(grant.getGrantType()));
+            for (Grant grant : grants) {
+                consumer.add(new AuthorizationGrantType(grant.getGrantType().label));
             }
         };
     }

@@ -1,6 +1,8 @@
 package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.*;
+import com.marcuslull.auth.models.enums.AuthType;
+import com.marcuslull.auth.models.enums.GrantType;
 import com.marcuslull.auth.models.enums.ScopeType;
 import com.marcuslull.auth.repositories.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,8 +57,8 @@ class ClientServiceTest {
         registeredClient = builder.build();
 
         Scope scope = new Scope(ScopeType.valueOfLabel("openid"), new Client());
-        AuthenticationMethod authenticationMethod = new AuthenticationMethod("client_secret_basic", new Client());
-        GrantType grantType = new GrantType("authorization_code", new Client());
+        Auth auth = new Auth(AuthType.valueOfLabel("client_secret_basic"), new Client());
+        Grant grant = new Grant(GrantType.valueOfLabel("authorization_code"), new Client());
         Redirect redirect = new Redirect("redirectUri", new Client());
         Redirect postRedirect = new Redirect("post", new Client());
         ClientAuthorization clientAuthorization = Mockito.mock(ClientAuthorization.class);
@@ -67,9 +69,9 @@ class ClientServiceTest {
         client.setSecret("secret");
         client.setClientSettings(clientSettings);
         client.setTokenSettings(tokenSettings);
-        client.setAvailScopes(List.of(scope));
-        client.setAuthMethods(List.of(authenticationMethod));
-        client.setGrantTypes(List.of(grantType));
+        client.setAvailableScopes(List.of(scope));
+        client.setAuthMethods(List.of(auth));
+        client.setAvailableGrants(List.of(grant));
         client.setRedUris(List.of(redirect));
         client.setPostLogRedUris(List.of(postRedirect));
         client.setAuthorizations(List.of(clientAuthorization));
