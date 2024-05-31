@@ -2,7 +2,6 @@ package com.marcuslull.auth;
 
 import com.marcuslull.auth.models.Client;
 import com.marcuslull.auth.models.ClientAuthorization;
-import com.marcuslull.auth.models.Redirect;
 import com.marcuslull.auth.models.enums.AuthType;
 import com.marcuslull.auth.models.enums.GrantType;
 import com.marcuslull.auth.models.enums.ScopeType;
@@ -41,15 +40,17 @@ public class DataLoader implements CommandLineRunner {
         client.addGrant(GrantType.CLIENT_CREDENTIALS);
         client.addAuth(AuthType.CLIENT_SECRET_BASIC);
         client.addAuth(AuthType.CLIENT_SECRET_POST);
-        client.setRedUris(List.of(new Redirect()));
-        client.setPostLogRedUris(List.of(new Redirect()));
+        client.addPreRedirect("someURL");
+        client.addPostRedirect("someOtherURL");
         client.setAuthorizations(List.of(new ClientAuthorization()));
         clientRepository.save(client);
 
-        clientRepository.findById(51L).ifPresent(result -> {
-                    result.getAvailableScopes().forEach(scope -> System.out.println(scope.getScope()));
-                    result.getAvailableGrants().forEach(grant -> System.out.println(grant.getGrantType()));
-                    result.getAuthMethods().forEach(auth -> System.out.println(auth.getAuthType()));
-                });
+//        clientRepository.findById(51L).ifPresent(result -> {
+//                    result.getAvailableScopes().forEach(scope -> System.out.println(scope.getScope()));
+//                    result.getAvailableGrants().forEach(grant -> System.out.println(grant.getGrantType()));
+//                    result.getAuthMethods().forEach(auth -> System.out.println(auth.getAuthType()));
+//                    result.getRedUris().forEach(red -> System.out.println(red.getUrl()));
+//                    result.getPostLogRedUris().forEach(red -> System.out.println(red.getUrl()));
+//                });
     }
 }

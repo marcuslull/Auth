@@ -78,14 +78,29 @@ public class Client implements Serializable {
         }
     }
 
-    @OneToMany(mappedBy = "clientId")
-    private List<Redirect> redUris; // where the user will be redirected to after they log in
+    // where the user will be redirected to after they log in
+    @OneToMany(mappedBy = "client")
+    private List<Redirect> redUris = new ArrayList<>();
 
-    @OneToMany(mappedBy = "clientId")
-    private List<Redirect> postLogRedUris; // where the user will be redirected after they log out
+    public void addPreRedirect(String redirect) {
+        if (this.redUris.stream().noneMatch(redir -> redir.getUrl().equals(redirect))) {
+            this.redUris.add(new Redirect(redirect, this));
+        }
+    }
 
+    // where the user will be redirected after they log out
+    @OneToMany(mappedBy = "client")
+    private List<Redirect> postLogRedUris = new ArrayList<>();
+
+    public void addPostRedirect(String redirect) {
+        if (this.postLogRedUris.stream().noneMatch(redir -> redir.getUrl().equals(redirect))) {
+            this.postLogRedUris.add(new Redirect(redirect, this));
+        }
+    }
+
+    // list of current authorizations
     @OneToMany(mappedBy = "clientId")
-    private List<ClientAuthorization> authorizations; // list of current authorizations
+    private List<ClientAuthorization> authorizations;
 
     public static RegisteredClient mapper(Client client) {
         return RegisteredClient.withId(String.valueOf(client.getId()))

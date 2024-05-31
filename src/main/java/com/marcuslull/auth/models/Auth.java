@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,7 +33,7 @@ public class Auth {
     @JoinColumn(name = "client")
     private Client client;
 
-    public static Auth mapper(ClientAuthenticationMethod  clientAuthenticationMethod, Client client) {
-        return new Auth(AuthType.valueOf(clientAuthenticationMethod.getValue()), client);
+    public static Auth mapper(AuthType authType, Client client) {
+        return new Auth(authType, client);
     }
 }

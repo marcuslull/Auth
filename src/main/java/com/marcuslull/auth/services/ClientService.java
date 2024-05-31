@@ -1,6 +1,7 @@
 package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.*;
+import com.marcuslull.auth.models.enums.AuthType;
 import com.marcuslull.auth.models.enums.GrantType;
 import com.marcuslull.auth.models.enums.ScopeType;
 import com.marcuslull.auth.repositories.ClientRepository;
@@ -42,7 +43,7 @@ public class ClientService implements RegisteredClientRepository {
         client.setAvailableScopes(registeredClient
                 .getScopes().stream().map(scope -> Scope.mapper(ScopeType.valueOfLabel(scope), client)).toList());
         client.setAuthMethods(registeredClient
-                .getClientAuthenticationMethods().stream().map(auth -> Auth.mapper(auth, client)).toList());
+                .getClientAuthenticationMethods().stream().map(auth -> Auth.mapper(AuthType.valueOfLabel(auth.getValue()), client)).toList());
         client.setAvailableGrants(registeredClient
                 .getAuthorizationGrantTypes().stream().map(grant -> Grant.mapper(GrantType.valueOfLabel(grant.getValue()), client)).toList());
         client.setRedUris(registeredClient

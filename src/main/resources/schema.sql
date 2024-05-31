@@ -53,7 +53,7 @@ create table clients (
 
 create table redirects (
     id bigint,
-    url int,
+    url varchar(500),
     client bigint
 );
 

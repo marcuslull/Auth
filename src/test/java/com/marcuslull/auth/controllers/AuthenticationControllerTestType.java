@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = AuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false) // bypasses the security filters
-class AuthenticationControllerTestType {
+class AuthenticationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
