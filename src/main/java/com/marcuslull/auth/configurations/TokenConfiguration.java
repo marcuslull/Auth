@@ -23,9 +23,6 @@ import java.util.UUID;
 @Configuration
 public class TokenConfiguration {
 
-    private final static String KEYPAIR_ALGORITHM = "RSA";
-    private final static int INITIALIZATION_SIZE = 2048;
-
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         log.info("AUTH_START: TokenConfiguration.jwtDecoder()");
@@ -51,6 +48,8 @@ public class TokenConfiguration {
 
     private static KeyPair generateRsaKey() {
         // helper for jwkSource()
+        final String KEYPAIR_ALGORITHM = "RSA";
+        final int INITIALIZATION_SIZE = 2048;
         KeyPair keyPair;
         try {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KEYPAIR_ALGORITHM);
