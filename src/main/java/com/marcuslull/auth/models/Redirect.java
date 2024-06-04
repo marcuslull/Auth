@@ -28,6 +28,7 @@ public class Redirect {
     private String url;
 
     @ManyToOne
+    @JoinColumn(name = "client")
     private Client client;
 
     public static Redirect mapper(String url, Client client) {
