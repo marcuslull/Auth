@@ -49,7 +49,7 @@ public class Client implements Serializable {
     private TokenSettings tokenSettings;
 
     // the permissions this client can offer
-    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Scope> availableScopes = new ArrayList<>();
 
     public void addScope(ScopeType scopeType) {
@@ -59,7 +59,7 @@ public class Client implements Serializable {
     }
 
     // the methods available to retrieve a token from this auth server
-    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Grant> availableGrants = new ArrayList<>();
 
     public void addGrant(GrantType grantType) {
@@ -69,7 +69,7 @@ public class Client implements Serializable {
     }
 
     // the authentication methods this client can use to authenticate with this auth server
-    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Auth> authMethods = new ArrayList<>();
 
     public void addAuth(AuthType authType) {
@@ -79,7 +79,7 @@ public class Client implements Serializable {
     }
 
     // where the user will be redirected to after they log in
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Redirect> redUris = new ArrayList<>();
 
     public void addPreRedirect(String redirect) {
@@ -89,7 +89,7 @@ public class Client implements Serializable {
     }
 
     // where the user will be redirected after they log out
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Redirect> postLogRedUris = new ArrayList<>();
 
     public void addPostRedirect(String redirect) {

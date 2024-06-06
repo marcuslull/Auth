@@ -26,7 +26,7 @@ public class Auth {
     private long id;
 
     @Column(name = "auth_type")
-    @Enumerated
+    @Enumerated(EnumType.ORDINAL)
     private AuthType authType;
 
     @ManyToOne

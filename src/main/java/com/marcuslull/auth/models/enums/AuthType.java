@@ -1,7 +1,8 @@
 package com.marcuslull.auth.models.enums;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public enum AuthType {
     CLIENT_SECRET_BASIC("client_secret_basic"),
@@ -10,7 +11,7 @@ public enum AuthType {
     PRIVATE_KEY_JWT("private_key_jwt"),
     NONE("none");
 
-    private static final Map<String, AuthType> BY_LABEL = new HashMap<>();
+    private static final Map<String, AuthType> BY_LABEL = new ConcurrentHashMap<>();
     static {
         for (AuthType auth : values()) {
             BY_LABEL.put(auth.label, auth);
@@ -23,6 +24,9 @@ public enum AuthType {
     }
 
     public static AuthType valueOfLabel(String label) {
+        if (Arrays.stream(AuthType.values()).noneMatch(value -> value.label.equals(label))) {
+            throw new RuntimeException("AuthType: " + label + " not found");
+        }
         return BY_LABEL.get(label);
     }
 }
