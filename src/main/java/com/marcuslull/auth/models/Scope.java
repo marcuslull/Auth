@@ -26,7 +26,7 @@ public class Scope {
     private long id;
 
     @Column(name = "scope")
-    @Enumerated
+    @Enumerated(EnumType.ORDINAL)
     private ScopeType scope;
 
     @ManyToOne

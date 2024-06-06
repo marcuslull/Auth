@@ -26,7 +26,7 @@ public class Grant {
     private long id;
 
     @Column(name = "grant_type")
-    @Enumerated
+    @Enumerated(EnumType.ORDINAL)
     private GrantType grantType;
 
     @ManyToOne
