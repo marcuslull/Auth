@@ -40,8 +40,8 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) {
 
         User user = new User();
-        user.setUsername("marcuslull@gmail.com");
-        user.setPassword(passwordEncoder.encode("3&&3YU5UxH%vm$2Zt"));
+        user.setUsername("user@email.com"); // testing account
+        user.setPassword("$argon2id$v=19$m=32768,t=20,p=4$Tpwl37PVJt84+3ZFavW59g$UVvDMFTN/QMKmW5GnQDvagNnOiZuXE13ssBvbg4+9Kc");
         user.setEnabled(true);
         user.setGrantedAuthority(Collections.singletonList(new SimpleGrantedAuthority("USER")));
 
@@ -49,8 +49,8 @@ public class DataLoader implements CommandLineRunner {
 
         Client client = new Client();
         client.setClientId("someId");
-        client.setName("testClient");
-        client.setSecret(passwordEncoder.encode("secret"));
+        client.setName("testClient"); // testing account
+        client.setSecret("$argon2id$v=19$m=32768,t=20,p=4$Cd/mZq+0idrZ9vFm8F6lFg$Zwd/J23z64boC+xJPacIAL0mVzAH+QOvAeC5GKQPPto");
         client.setClientSettings(ClientSettings.builder().build());
         client.setTokenSettings(TokenSettings.builder().build());
         client.addScope(ScopeType.OPENID);
@@ -59,8 +59,10 @@ public class DataLoader implements CommandLineRunner {
         client.addGrant(GrantType.CLIENT_CREDENTIALS);
         client.addAuth(AuthType.CLIENT_SECRET_BASIC);
         client.addAuth(AuthType.CLIENT_SECRET_POST);
-        client.addPreRedirect("http://127.0.0.1:1234/home");
-        client.addPostRedirect("http://127.0.0.1:1234/home");
+        client.addPreRedirect("https://test.marcuslull.com/login/oauth2/code/");
+        client.addPostRedirect("https://test.marcuslull.com");
+//        client.addPreRedirect("http://127.0.0.1:1234/home");
+//        client.addPostRedirect("http://127.0.0.1:1234/home");
         client.setAuthorizations(List.of(new ClientAuthorization()));
         clientRepository.save(client);
 

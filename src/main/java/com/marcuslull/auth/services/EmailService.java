@@ -11,8 +11,8 @@ public class EmailService {
 
     public static final String FROM = "mjlappsdemo@gmail.com";
     public static final String RESET_SUBJECT = "Password reset from MJLApps";
-    public static final String LINK_BASE = "http://localhost:8080";
-//    public static final String LINK_BASE = "https://auth.marcuslull.com";
+//    public static final String LINK_BASE = "http://localhost:8080";
+    public static final String LINK_BASE = "https://auth.marcuslull.com";
     public static final String RESET_LINK = LINK_BASE + "/reset?code=";
     public static final String RESET_BASE_TEXT = "Please click the following link to reset your password: ";
     public static final String VERIFY_SUBJECT = "Email Verification from MJLApps";
