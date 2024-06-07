@@ -11,7 +11,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(Exception exception) {
-        log.error("EXCEPTION: GlobalExceptionHandler.handleRuntimeException()", exception);
-        return ResponseEntity.internalServerError().body("Internal server error, please try again later.");
+        log.error("AUTH_EXCEPTION: GlobalExceptionHandler.handleRuntimeException()", exception);
+        String errorMessage = "An Error has occurred: " + exception.getMessage();
+        return ResponseEntity.internalServerError().body(errorMessage);
     }
 }

@@ -14,13 +14,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     public CustomUserDetailsService(UserRepository userRepository) {
-        log.info("START: CustomUserDetailsService");
+        log.info("AUTH_START: CustomUserDetailsService");
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.warn("USER: CustomUserDetailsService.loadUserByUsername({})", username);
+        log.warn("AUTH_USER: CustomUserDetailsService.loadUserByUsername({})", username);
         return userRepository.getUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }

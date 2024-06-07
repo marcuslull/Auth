@@ -1,4 +1,5 @@
-[![Java CI with Maven](https://github.com/marcuslull/Auth/actions/workflows/maven.yml/badge.svg?branch=dev)](https://github.com/marcuslull/Auth/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/marcuslull/Auth/actions/workflows/maven.yml/badge.svg?branch=dev)](https://github.com/marcuslull/Auth/actions/workflows/maven.yml)  
+[![CodeQL](https://github.com/marcuslull/Auth/actions/workflows/codeql.yml/badge.svg?branch=dev)](https://github.com/marcuslull/Auth/actions/workflows/codeql.yml)
 
 # Auth Service
 
