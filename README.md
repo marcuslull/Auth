@@ -64,15 +64,30 @@ The JWTs are OpenID Connect 1.0 compliant which may expose authentication claims
 <a href="https://github.com/P-H-C/phc-winner-argon2/blob/master/argon2-specs.pdf">https://github.com/P-H-C/phc-winner-argon2/blob/master/argon2-specs.pdf</a>
 ___
 
-## Current Release (v0.1.0)
+## Current Release (v0.2.0)
+#### NOT READY FOR PRODUCTION
+* General code cleanup
+* Fixed a bug where the user wasn't logged out after credential change
+* Added user feedback to the login screen
+* Fixed an exception when attempting to change a password with a verification link that was already used
+* Updated logging system
+* Basic implementation of OAuth 2.0
+  * New security configurations
+  * New registered client configurations, entities and mappers
+  * New JWT configurations
+  * New authority configurations
+  * Client grantType, authentication methods, scopes, and redirects implemented
+
+
+## Previous Release (v0.1.0)
 #### NOT READY FOR PRODUCTION
 * Added basic authentication workflows
   * Login/logout
   * Email verification
   * Update password
 * Added a custom user details service to facilitate persistence
-* Added PostgreSQL support for user account persistence
-* Added support for password hashing with the Argon2id cryptographic hashing algorithm
+* Added PostgresSQL support for user account persistence
+* Added support for password hashing with the Argon 2id cryptographic hashing algorithm
 * Added support for logging via a Logback rolling size and time based log files
 * Added unit and integration tests for controller and service classes
 * Added Thymeleaf UI template pages along with common fragments to support the implemented workflows
