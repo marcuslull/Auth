@@ -1,5 +1,6 @@
 package com.marcuslull.auth.models;
 
+import com.marcuslull.auth.models.enums.PermType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,28 +22,31 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_generator")
-    @SequenceGenerator(name = "users_generator", sequenceName = "users_SEQ", allocationSize = 1)
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", nullable = false, length = 50)
+    @Column(name = "username")
     private String username;
 
-    @Column(name = "password", nullable = false, length = 500)
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "enabled", nullable = false)
+    @Column(name = "enabled")
     private Boolean enabled = false;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "authority")
-    @CollectionTable(name = "authorities", joinColumns = @JoinColumn(name = "id"))
-    private List<GrantedAuthority> grantedAuthority = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST,  fetch = FetchType.EAGER)
+    private List<Permission> permissions = new ArrayList<>();
+
+    public void addPermission(PermType permType) {
+        if(this.permissions.stream().noneMatch(perm -> perm.getPermType() == permType)) {
+            this.permissions.add(new Permission(permType, this));
+        }
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthority;
+        return permissions;
     }
 
     @Override

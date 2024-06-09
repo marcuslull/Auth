@@ -1,6 +1,7 @@
 package com.marcuslull.auth.services;
 
 import com.marcuslull.auth.models.User;
+import com.marcuslull.auth.models.enums.PermType;
 import com.marcuslull.auth.models.records.Registration;
 import com.marcuslull.auth.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -37,7 +35,7 @@ public class RegistrationService {
         user.setUsername(registration.email());
         user.setPassword(passwordEncoder.encode(registration.password()));
         user.setEnabled(false);
-        user.setGrantedAuthority(Collections.singletonList(USER));
+        user.addPermission(PermType.USER);
         User savedUser = userRepository.save(user);
         log.warn("AUTH_REGISTRATION: RegistrationService.registerNewUser(email: {}, password: [PROTECTED]) - new user registered", savedUser.getUsername());
         verificationService.verificationCodeGenerator(savedUser, false);

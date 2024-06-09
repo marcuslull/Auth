@@ -33,13 +33,13 @@ public class Client implements Serializable {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "client_id", length = 100, unique = true)
+    @Column(name = "client_id")
     private String clientId;
 
-    @Column(name = "name", length = 50)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "secret", length = 500)
+    @Column(name = "secret")
     private String secret;
 
     @Column(name = "client_settings")
