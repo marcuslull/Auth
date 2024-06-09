@@ -1,8 +1,10 @@
 package com.marcuslull.auth.services;
 
 
+import com.marcuslull.auth.models.Permission;
 import com.marcuslull.auth.models.User;
 import com.marcuslull.auth.models.Verification;
+import com.marcuslull.auth.models.enums.PermType;
 import com.marcuslull.auth.models.records.Registration;
 import com.marcuslull.auth.repositories.UserRepository;
 import com.marcuslull.auth.repositories.VerificationRepository;
@@ -40,7 +42,12 @@ class VerificationServiceTest {
     @Test
     void verificationCodeProcessorNewCodeTest() {
         Registration registration = new Registration("email", "", "", "", false);
-        User newCodeUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
+        User newCodeUser = new User();
+        newCodeUser.setId(1L);
+        newCodeUser.setUsername("email");
+        newCodeUser.setPassword("password");
+        newCodeUser.setEnabled(false);
+        newCodeUser.addPermission(PermType.USER);
         when(userRepository.getUserByUsername(anyString())).thenReturn(Optional.of(newCodeUser));
         doNothing().when(verificationRepository).deleteAllById(any(User.class));
         when(validationService.emailIsWellFormed(any(User.class))).thenReturn(true);
@@ -59,8 +66,13 @@ class VerificationServiceTest {
     @Test
     void verificationCodeProcessorPasswordResetTest() {
         Registration resetRegistration = new Registration("", "password", "password", "", true);
-        User resetUser = new User(1L, "email", "password", true, List.of(new SimpleGrantedAuthority("USER")));
-        Verification resetVerification = new Verification("randomUUID", resetUser, Instant.now());
+        User resetUser = new User();
+        resetUser.setId(1L);
+        resetUser.setUsername("email");
+        resetUser.setPassword("password");
+        resetUser.setEnabled(true);
+        resetUser.addPermission(PermType.USER);
+        Verification resetVerification = new Verification("randomUUID", Instant.now(), resetUser);
         when(verificationRepository.findByCode(anyString())).thenReturn(Optional.of(resetVerification));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(resetUser));
         when(validationService.codeIsNotExpired(any(Instant.class))).thenReturn(true);
@@ -79,8 +91,13 @@ class VerificationServiceTest {
     @Test
     void verificationCodeProcessorNewRegistrationTest() {
         Registration newRegistration = new Registration("", "password", "password", "", false);
-        User newUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
-        Verification newVerification = new Verification("randomUUID", newUser, Instant.now());
+        User newUser = new User();
+        newUser.setId(1L);
+        newUser.setUsername("email");
+        newUser.setPassword("password");
+        newUser.setEnabled(false);
+        newUser.addPermission(PermType.USER);
+        Verification newVerification = new Verification("randomUUID", Instant.now(), newUser);
         when(verificationRepository.findByCode(anyString())).thenReturn(Optional.of(newVerification));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(newUser));
         when(validationService.codeIsNotExpired(any(Instant.class))).thenReturn(true);
@@ -97,9 +114,14 @@ class VerificationServiceTest {
     @Test
     void verificationCodeProcessorExpiredCodeTest() {
         Registration newRegistration = new Registration("", "password", "password", "", false);
-        User newUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
-        Verification expiredVerification = new Verification("randomUUID", newUser, Instant.now());
-        Verification newVerification = new Verification("randomUUID", newUser, Instant.now());
+        User newUser = new User();
+        newUser.setId(1L);
+        newUser.setUsername("email");
+        newUser.setPassword("password");
+        newUser.setEnabled(false);
+        newUser.addPermission(PermType.USER);
+        Verification expiredVerification = new Verification("randomUUID", Instant.now(), newUser);
+        Verification newVerification = new Verification("randomUUID", Instant.now(), newUser);
         when(verificationRepository.findByCode(anyString())).thenReturn(Optional.of(expiredVerification));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(newUser));
         when(validationService.codeIsNotExpired(any(Instant.class))).thenReturn(false);
@@ -119,8 +141,13 @@ class VerificationServiceTest {
 
     @Test
     void verificationCodeGeneratorTest() {
-        User newUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
-        Verification newVerification = new Verification("randomUUID", newUser, Instant.now());
+        User newUser = new User();
+        newUser.setId(1L);
+        newUser.setUsername("email");
+        newUser.setPassword("password");
+        newUser.setEnabled(false);
+        newUser.addPermission(PermType.USER);
+        Verification newVerification = new Verification("randomUUID", Instant.now(), newUser);
         when(validationService.emailIsWellFormed(any(User.class))).thenReturn(true);
         when(verificationRepository.save(any(Verification.class))).thenReturn(newVerification);
         doNothing().when(emailService).sendEmail(anyString(), anyString(), anyBoolean());
@@ -134,7 +161,12 @@ class VerificationServiceTest {
 
     @Test
     void verificationCodeGeneratorInvalidEmailTest() {
-        User newUser = new User(1L, "email", "password", false, List.of(new SimpleGrantedAuthority("USER")));
+        User newUser = new User();
+        newUser.setId(1L);
+        newUser.setUsername("email");
+        newUser.setPassword("password");
+        newUser.setEnabled(false);
+        newUser.addPermission(PermType.USER);
         when(validationService.emailIsWellFormed(any(User.class))).thenReturn(false);
 
         verificationService.verificationCodeGenerator(newUser, false);

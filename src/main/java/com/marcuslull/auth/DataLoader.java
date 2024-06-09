@@ -5,6 +5,7 @@ import com.marcuslull.auth.models.ClientAuthorization;
 import com.marcuslull.auth.models.User;
 import com.marcuslull.auth.models.enums.AuthType;
 import com.marcuslull.auth.models.enums.GrantType;
+import com.marcuslull.auth.models.enums.PermType;
 import com.marcuslull.auth.models.enums.ScopeType;
 import com.marcuslull.auth.repositories.ClientRepository;
 import com.marcuslull.auth.repositories.UserRepository;
@@ -43,7 +44,7 @@ public class DataLoader implements CommandLineRunner {
         user.setUsername("user@email.com"); // testing account
         user.setPassword("$argon2id$v=19$m=32768,t=20,p=4$Tpwl37PVJt84+3ZFavW59g$UVvDMFTN/QMKmW5GnQDvagNnOiZuXE13ssBvbg4+9Kc");
         user.setEnabled(true);
-        user.setGrantedAuthority(Collections.singletonList(new SimpleGrantedAuthority("USER")));
+        user.addPermission(PermType.USER);
 
         userRepository.save(user);
 

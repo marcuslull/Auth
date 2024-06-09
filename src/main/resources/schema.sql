@@ -1,26 +1,26 @@
 -- Tables - Authentication
 drop table if exists verification;
-drop table if exists authorities;
+drop table if exists permissions;
 drop table if exists users;
 
 create table users (
-    id bigint not null primary key,
-    username varchar(50) not null,
-    password varchar(500) not null,
-    enabled boolean not null
+    id bigint,
+    username varchar(50),
+    password varchar(500),
+    enabled boolean
 );
 
-create table authorities (
-    id bigint not null,
-    authority bytea not null,
-    constraint fk_authorities_users foreign key(id) references users
+create table permissions (
+    id bigint,
+    perm int,
+    user_id bigint
 );
 
 create table verification (
-    id bigint not null,
-    code varchar(50) not null,
-    created timestamp not null,
-    constraint fk_verification_users foreign key(id) references users
+    id bigint,
+    code varchar(50),
+    created timestamp,
+    user_id int
 );
 
 
@@ -84,19 +84,23 @@ create table auths (
 -- indexes
 drop index if exists ix_auth_username;
 
-create unique index ix_auth_username on authorities (id,authority);
+create unique index ix_auth_username on permissions (id, perm);
 
 
 
 -- sequences
 drop sequence if exists users_SEQ;
+drop sequence if exists permissions_SEQ;
+drop sequence if exists verification_SEQ;
 drop sequence if exists clients_SEQ;
 drop sequence if exists scopes_SEQ;
 drop sequence if exists redirects_SEQ;
 drop sequence if exists grants_SEQ;
 drop sequence if exists auths_SEQ;
 
-create sequence users_SEQ start with 100 increment by 1;
+create sequence users_SEQ start with 100 increment by 50;
+create sequence permissions_SEQ start with 100 increment by 50;
+create sequence verification_SEQ start with 100 increment by 50;
 create sequence clients_SEQ start with 100 increment by 50;
 create sequence scopes_SEQ start with 100 increment by 50;
 create sequence redirects_SEQ start with 100 increment by 50;
@@ -108,13 +112,14 @@ create sequence auths_SEQ start with 100 increment by 50;
 -- Functions
 drop function if exists delete_old_verifications();
 
-create or replace function delete_old_verifications() returns trigger language plpgsql
-    as $$
-    begin
-        delete from verification
-        where created < CURRENT_TIMESTAMP - interval '24 hours\';
-    end;
-    $$;
+create or replace function delete_old_verifications() returns trigger
+as $$
+begin
+    delete from verification
+    where created < CURRENT_TIMESTAMP - interval '24 hours\';
+    return null;
+end;
+$$ language plpgsql;
 
 
 
@@ -122,7 +127,7 @@ create or replace function delete_old_verifications() returns trigger language p
 -- Triggers
 drop trigger if exists verif_cleanup on verification;
 
-create trigger verif_cleanup
+create or replace trigger verif_cleanup
     after delete on verification
     for each row
 execute procedure delete_old_verifications();

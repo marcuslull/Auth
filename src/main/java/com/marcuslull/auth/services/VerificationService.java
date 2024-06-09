@@ -53,7 +53,7 @@ public class VerificationService {
         }
         Verification verification = verificationEntryGetter(code);
         if (verification != null) {
-            User user = verificationUserGetterById(verification.getId().getId());
+            User user = verificationUserGetterById(verification.getUser().getId());
             if (validationService.codeIsNotExpired(verification.getCreated())) {
                 if (user != null) {
                     if (registration.isReset()) { // this branch is for password resets
@@ -91,7 +91,7 @@ public class VerificationService {
             // code, timestamp and user id make up a verification. A short-lived email verification scheme
             String code = UUID.randomUUID().toString();
             Instant creationTime = Instant.now();
-            Verification savedVerification = verificationRepository.save(new Verification(code, user, creationTime));
+            Verification savedVerification = verificationRepository.save(new Verification(code, creationTime, user));
             log.warn("AUTH_VERIFICATION: VerificationService.verificationCodeGenerator(user: {}) - new code created: {} - isReset: {}", user.getUsername(), savedVerification.getCode(), isReset);
             emailService.sendEmail(user.getUsername(), savedVerification.getCode(), isReset);
         } else { // this user has not registered their account yet - just drop the call
