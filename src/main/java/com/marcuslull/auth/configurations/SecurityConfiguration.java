@@ -26,10 +26,16 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    private final CrossOriginConfiguration crossOriginConfiguration;
+
+    public SecurityConfiguration(CrossOriginConfiguration crossOriginConfiguration) {
+        this.crossOriginConfiguration = crossOriginConfiguration;
+    }
+
     @Bean
     @Order(1)
     public SecurityFilterChain AuthorizationServerFilterChain(HttpSecurity http) throws Exception {
-        log.info("AUTH_START: SecurityConfiguration.AuthorizationServerFilterChain()");
+        log.info("AUTH_START: AuthorizationServerFilterChain()");
 
         // Apply base OAuth defaults for Spring Authorization server
         // This matches on all the default endpoints authorization server uses, defines the scope of this filter chain
@@ -54,9 +60,12 @@ public class SecurityConfiguration {
     @Bean
     @Order(2)
     public SecurityFilterChain baseFilter(HttpSecurity http) throws Exception {
-        log.info("AUTH_START: SecurityConfiguration.baseFilter()");
+        log.info("AUTH_START: BaseFilter()");
 
         http
+                 //CORS configuration
+                .cors(cors -> cors.configurationSource(crossOriginConfiguration.corsConfigurationSource()))
+
                 // access configuration - must be ordered by specificity
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/images/**", "/favicon.ico", "/register", "/reset", "/verify", "/").permitAll()
@@ -80,7 +89,7 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        log.info("AUTH_START: SecurityConfiguration.authenticationManager()");
+        log.info("AUTH_START: AuthenticationManager()");
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // using the standard username/password authentication
         authenticationProvider.setUserDetailsService(userDetailsService); // using CustomUserDetailsService for the user details configuration
         authenticationProvider.setPasswordEncoder(passwordEncoder); // using argon2 password encoder below
@@ -91,7 +100,7 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        log.info("AUTH_START: SecurityConfiguration.passwordEncoder");
+        log.info("AUTH_START: PasswordEncoder");
         // 16B saltLength, 32B hashLength, 4 parallelism (CPU cores), 32B memory (left bit-shift by 15 places), 20 iterations
 //        return new Argon2PasswordEncoder(16, 32, 4, 1 << 15, 20);
         return new Argon2PasswordEncoder(0, 32, 1, 1 << 4, 1); // testing only

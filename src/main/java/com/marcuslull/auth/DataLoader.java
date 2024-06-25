@@ -60,10 +60,10 @@ public class DataLoader implements CommandLineRunner {
         client.addGrant(GrantType.CLIENT_CREDENTIALS);
         client.addAuth(AuthType.CLIENT_SECRET_BASIC);
         client.addAuth(AuthType.CLIENT_SECRET_POST);
-        client.addPreRedirect("https://test.marcuslull.com/login/oauth2/code/");
-        client.addPostRedirect("https://test.marcuslull.com");
-//        client.addPreRedirect("http://127.0.0.1:1234/home");
-//        client.addPostRedirect("http://127.0.0.1:1234/home");
+//        client.addPreRedirect("https://test.marcuslull.com/login/oauth2/code/");
+//        client.addPostRedirect("https://test.marcuslull.com");
+        client.addPreRedirect("http://127.0.0.1:1234/home");
+        client.addPostRedirect("http://127.0.0.1:1234/home");
         client.setAuthorizations(List.of(new ClientAuthorization()));
         clientRepository.save(client);
 
